@@ -1,0 +1,1293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b0c0f">
+<meta name="application-name" content="TradeLedge">
+<meta name="apple-mobile-web-app-title" content="TradeLedge">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<meta name="color-scheme" content="dark light">
+<title id="browserTabTitle">TradeLedge — Trading Journal</title>
+<style>
+:root{--bg:#0b0c0f;--panel:#121418;--panel2:#181b21;--text:#ececee;--muted:#9096a2;--border:#262a32;--accent:#8b7cff;--green:#39d9a0;--red:#ff6f7d;--radius:16px;--space:16px;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-size:14px}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:1px solid var(--border);background:var(--panel2);color:var(--text);border-radius:10px;padding:10px 13px}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:white;font-weight:700}
+button.danger{color:var(--red)}
+input,select,textarea{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px;min-width:0}
+textarea{min-height:88px;resize:vertical}
+label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
+.app{display:grid;grid-template-columns:245px minmax(0,1fr);min-height:100vh}
+.sidebar{border-right:1px solid var(--border);background:var(--panel);padding:22px 14px;display:flex;flex-direction:column;gap:22px}
+.brand{display:flex;gap:10px;align-items:center;padding:0 8px;font-weight:800;font-size:18px;letter-spacing:-.5px}
+.logo{width:34px;height:34px;border-radius:11px;background:var(--accent);display:grid;place-items:center;color:white}
+.nav{display:grid;gap:5px}
+.nav button{background:transparent;border-color:transparent;text-align:left;color:var(--muted);display:flex;gap:12px;align-items:center}
+.nav button.active,.nav button:hover{background:var(--panel2);color:var(--text)}
+.side-bottom{margin-top:auto;display:grid;gap:8px}
+.main{min-width:0}
+.topbar{height:72px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px;gap:16px}
+.topbar h1{font-size:20px;margin:0}
+.top-actions{display:flex;gap:8px;align-items:center}
+.content{padding:26px 28px 40px;max-width:1600px;margin:auto}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);font-weight:700}
+.heading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:22px}
+.heading h2{font-size:26px;margin:5px 0}
+.heading p{margin:0;color:var(--muted)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.grid{display:grid;gap:14px}
+.stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:18px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:18px;min-width:0}
+.stat-label{color:var(--muted);font-size:12px}
+.stat-value{font-size:25px;font-weight:750;letter-spacing:-.7px;margin:9px 0 5px;overflow-wrap:anywhere}
+.stat-sub{font-size:12px;color:var(--muted)}
+.positive{color:var(--green)!important}
+.negative{color:var(--red)!important}
+.two-col{grid-template-columns:minmax(0,1.35fr) minmax(280px,.85fr)}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
+.card-head h3{font-size:15px;margin:0}
+.card-head small{color:var(--muted)}
+.chart{width:100%;height:220px;display:block}
+.barlist{display:grid;gap:13px}
+.barrow{display:grid;grid-template-columns:90px 1fr auto;gap:10px;align-items:center}
+.bartrack{height:8px;border-radius:10px;background:var(--border);overflow:hidden}
+.barfill{height:100%;border-radius:10px;background:var(--accent)}
+.filters{display:grid;grid-template-columns:2fr repeat(4,minmax(120px,1fr));gap:9px;margin-bottom:14px}
+.table-wrap{overflow:auto;border:1px solid var(--border);border-radius:12px}
+table{border-collapse:collapse;width:100%;white-space:nowrap}
+th,td{text-align:left;padding:13px 14px;border-bottom:1px solid var(--border)}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);font-weight:700;background:var(--panel2)}
+td{font-size:13px}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:var(--panel2)}
+.pill{display:inline-flex;align-items:center;border-radius:30px;padding:4px 8px;font-size:11px;background:var(--panel2);color:var(--muted)}
+.pill.long,.pill.closed{color:var(--green)}
+.pill.short,.pill.cancelled{color:var(--red)}
+.empty{padding:40px 16px;text-align:center;color:var(--muted)}
+.empty strong{display:block;color:var(--text);margin-bottom:6px}
+.form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}
+.field.full{grid-column:1/-1}
+.field.span2{grid-column:span 2}
+.form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.section{display:none}
+.section.active{display:block}
+.settings-layout{display:grid;grid-template-columns:200px minmax(0,1fr);gap:16px}
+.settings-nav{display:grid;align-content:start;gap:5px}
+.settings-nav button{text-align:left}
+.setting-row{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:15px 0;border-bottom:1px solid var(--border)}
+.setting-row:last-child{border-bottom:0}
+.setting-row p{margin:5px 0 0;color:var(--muted);font-size:12px}
+.setting-control{width:min(260px,45%)}
+.swatches{display:flex;gap:9px;flex-wrap:wrap}
+.swatch{width:28px;height:28px;border-radius:50%;padding:0;border:2px solid var(--border)}
+.modal-backdrop{position:fixed;inset:0;background:#02050bc9;display:none;align-items:center;justify-content:center;padding:18px;z-index:10}
+.modal-backdrop.show{display:flex}
+.modal{width:min(900px,100%);max-height:92vh;overflow:auto;background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:22px}
+.modal.small{width:min(460px,100%)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.modal-head h2{margin:0;font-size:20px}
+.mobile-menu{display:none}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--panel2);border:1px solid var(--border);padding:13px 16px;border-radius:12px;z-index:30;box-shadow:0 10px 40px #0004;max-width:min(360px,calc(100vw - 40px))}
+.muted{color:var(--muted)}
+.split{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.calendar{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.dayname{text-align:center;color:var(--muted);font-size:11px;padding:8px 0}
+.day{min-height:82px;border:1px solid var(--border);border-radius:10px;padding:7px;background:var(--panel2);cursor:pointer;overflow:hidden}
+.day .num{font-size:11px;color:var(--muted)}
+.day .pnl{display:block;font-size:11px;font-weight:700;margin-top:9px;overflow-wrap:anywhere}
+.day.pos{border-color:#39d9a044}
+.day.neg{border-color:#ff6f7d55}
+.hidden{display:none!important}
+.note{font-size:12px;color:var(--muted);line-height:1.6}
+.metricline{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
+.metricline:last-child{border:0}
+.risk-result{font-size:23px;font-weight:750;margin-top:8px}
+.checkrow{display:flex;align-items:center;gap:9px}
+.checkrow input{width:auto}
+.mobile-nav{display:none}
+@media(max-width:1100px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.filters{grid-template-columns:repeat(3,minmax(0,1fr))}.two-col{grid-template-columns:1fr}}
+@media(max-width:760px){.app{grid-template-columns:1fr}.sidebar{position:fixed;z-index:8;inset:0 auto 0 0;width:260px;transform:translateX(-105%);transition:transform .2s;box-shadow:20px 0 60px #0005}.sidebar.open{transform:translateX(0)}.mobile-menu{display:inline-flex}.topbar{height:64px;padding:0 14px}.topbar h1{font-size:17px}.top-actions .desktop-only{display:none}.content{padding:20px 14px 30px}.heading{flex-direction:column}.heading h2{font-size:23px}.stats{gap:9px}.card{padding:14px}.stat-value{font-size:21px}.filters{grid-template-columns:repeat(2,minmax(0,1fr))}.filters .search{grid-column:1/-1}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.settings-layout{grid-template-columns:1fr}.settings-nav{grid-template-columns:repeat(2,minmax(0,1fr))}.day{min-height:65px;padding:5px}.day .pnl{font-size:9px}.calendar{gap:3px}.barrow{grid-template-columns:75px 1fr auto}.top-actions{gap:5px}}
+@media(max-width:420px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.form-grid{grid-template-columns:1fr}.field.span2{grid-column:auto}.filters{grid-template-columns:1fr 1fr}.setting-row{align-items:flex-start;flex-direction:column}.setting-control{width:100%}.stat-value{font-size:19px}.top-actions button{padding:9px}.heading .actions{width:100%}.heading .actions button{flex:1}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+@media print{.sidebar,.topbar,.actions,.filters,button{display:none!important}.app{display:block}.content{padding:0}.card{break-inside:avoid;background:white;color:#111;border-color:#ddd}.stat-label,.muted,.stat-sub{color:#555}.section{display:none!important}#dashboard.section{display:block!important}body{background:white;color:#111}}
+/* ===== Premium upgrade layer (additive) ===== */
+:root{--dur:.2s;--ease:cubic-bezier(.2,.8,.2,1)}
+button{transition:border-color var(--dur),background var(--dur),transform .12s,box-shadow var(--dur)}
+button:active:not(:disabled){transform:scale(.97)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button.primary{box-shadow:0 4px 16px color-mix(in srgb,var(--accent) 35%,transparent)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.card{transition:border-color var(--dur),box-shadow var(--dur)}
+.card:hover{border-color:#383838;box-shadow:0 0 0 1px color-mix(in srgb,var(--accent) 22%,transparent),0 10px 28px #0007}
+.nav button{position:relative}
+.nav button::before{content:"";position:absolute;left:0;top:28%;bottom:28%;width:3px;border-radius:3px;background:var(--accent);transform:scaleY(0);transition:transform .22s var(--ease)}
+.nav button.active::before{transform:scaleY(1)}
+.section.active{animation:tl-fade .28s var(--ease)}
+.section.active .stats .card{animation:tl-rise .45s var(--ease) both}
+.stats .card:nth-child(2){animation-delay:.05s!important}
+.stats .card:nth-child(3){animation-delay:.1s!important}
+.stats .card:nth-child(4){animation-delay:.15s!important}
+.chart{animation:tl-fade .7s ease}
+.modal-backdrop.show{animation:tl-fade .18s ease;-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)}
+.modal-backdrop.show .modal{animation:tl-pop .24s var(--ease)}
+@keyframes tl-fade{from{opacity:0}}
+@keyframes tl-rise{from{opacity:0;transform:translateY(10px)}}
+@keyframes tl-pop{from{opacity:0;transform:translateY(12px) scale(.97)}}
+.ic{flex:none;transition:transform .25s var(--ease)}
+button:hover .ic{transform:translateY(-1px) scale(1.06)}
+.icon-btn{display:inline-flex;align-items:center;gap:7px;min-height:42px}
+.pwrap{position:relative}
+.avatar-btn{padding:4px;border-radius:50%;line-height:0;min-height:0}
+.avatar-btn:hover{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent)}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--panel2);border:1px solid var(--border);display:inline-grid;place-items:center;font-size:12px;font-weight:700;overflow:hidden;color:var(--text);line-height:1}
+.avatar.big{width:48px;height:48px;font-size:16px}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.pmenu{position:absolute;right:0;top:calc(100% + 8px);width:min(280px,calc(100vw - 24px));background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:8px;z-index:12;box-shadow:0 18px 50px #000c;opacity:0;visibility:hidden;transform:translateY(-6px) scale(.98);transform-origin:top right;transition:opacity .18s,transform .18s var(--ease),visibility 0s .18s}
+.pmenu.open{opacity:1;visibility:visible;transform:none;transition:opacity .18s,transform .18s var(--ease)}
+.pm-head{display:flex;gap:12px;align-items:center;padding:8px 8px 12px;border-bottom:1px solid var(--border);margin-bottom:6px}
+.pm-head strong{display:block;overflow-wrap:anywhere}
+.pmenu button[role=menuitem]{display:flex;width:100%;gap:10px;align-items:center;text-align:left;border-color:transparent;background:transparent;padding:10px}
+.pmenu button[role=menuitem]:hover,.pmenu button[role=menuitem]:focus-visible{background:var(--panel2);border-color:transparent}
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:20px;background:var(--panel2);color:var(--muted)}
+.badge.on{color:var(--green)}
+#toasts{position:fixed;bottom:18px;right:18px;display:grid;gap:8px;z-index:40;width:min(360px,calc(100vw - 36px))}
+.tst{display:flex;gap:10px;align-items:flex-start;background:var(--panel2);border:1px solid var(--border);border-left:3px solid var(--green);padding:12px;border-radius:12px;box-shadow:0 12px 40px #000a;opacity:0;transform:translateY(10px);transition:opacity .2s,transform .22s var(--ease)}
+.tst.in{opacity:1;transform:none}
+.tst.err{border-left-color:var(--red)}
+.tst span{flex:1;overflow-wrap:anywhere}
+.tst button{padding:0 6px;min-height:0;border:0;background:none;color:var(--muted)}
+[data-tip]{position:relative}
+[data-tip]:hover::after,[data-tip]:focus-visible::after{content:attr(data-tip);position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--border);padding:5px 9px;border-radius:8px;font-size:12px;white-space:nowrap;z-index:15;pointer-events:none;animation:tl-fade .15s}
+@media(max-width:760px){.icon-btn .lbl{display:none}.pwrap{position:static}.pmenu{right:10px;top:68px;position:fixed}.top-actions{gap:6px}}
+html[data-motion=off] *,html[data-motion=off] *::before,html[data-motion=off] *::after{animation:none!important;transition:none!important}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+@media print{#toasts,.pwrap{display:none!important}}
+/* ===== Premium layer ===== */
+.scrim{display:none}
+.hero-brand{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+.hero-brand .logo{width:46px;height:46px;border-radius:14px;font-weight:800;box-shadow:0 8px 28px color-mix(in srgb,var(--accent) 40%,transparent);animation:tl-float 5s ease-in-out infinite}
+.hero-name{font-size:clamp(22px,4.5vw,32px);font-weight:800;letter-spacing:-.8px;line-height:1.1;background:linear-gradient(90deg,var(--text) 0%,var(--accent) 50%,var(--text) 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:tl-shine 6s linear infinite}
+.hero-sub{color:var(--muted);font-size:13px;margin-top:3px}
+@keyframes tl-shine{to{background-position:-200% 0}}
+@keyframes tl-float{50%{transform:translateY(-3px)}}
+@keyframes tl-wipe{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+.chart{animation:tl-wipe 1s var(--ease) both}
+.stats .card:hover{transform:translateY(-3px)}
+.stats .card{transition:transform .25s var(--ease),border-color var(--dur),box-shadow var(--dur)}
+.pnl-card .actions button{padding:7px 12px;min-height:36px}
+.mobile-nav button{position:relative;transition:color .2s}
+.mobile-nav button::before{content:"";position:absolute;top:0;left:30%;right:30%;height:3px;border-radius:0 0 3px 3px;background:var(--accent);transform:scaleX(0);transition:transform .25s var(--ease)}
+.mobile-nav button.active::before{transform:scaleX(1)}
+.mobile-nav button:active{transform:scale(.94)}
+@media(min-width:761px) and (max-width:1100px){.app{grid-template-columns:205px minmax(0,1fr)}.content{padding:22px 20px 36px}.topbar{padding:0 18px}}
+@media(max-width:380px){.topbar h1{font-size:15px}#quickAdd{font-size:0;padding:9px 12px}#quickAdd::before{content:"＋";font-size:18px}.hero-brand .logo{width:40px;height:40px}}
+/* ===== Mobile-first layer ===== */
+@media(max-width:760px){
+body{padding-bottom:calc(66px + env(safe-area-inset-bottom,0px))}
+.topbar{padding-top:env(safe-area-inset-top,0px);height:calc(64px + env(safe-area-inset-top,0px))}
+.mobile-menu{display:inline-flex;min-width:44px;justify-content:center;align-items:center}
+#profileBtn{display:none}
+.pmenu{top:auto;bottom:calc(72px + env(safe-area-inset-bottom,0px));right:10px;transform:translateY(8px) scale(.98);transform-origin:bottom right}
+.mobile-nav{z-index:6}
+.mobile-nav .avatar{width:26px;height:26px;font-size:10px}
+.scrim{display:block;position:fixed;inset:0;background:#000b;opacity:0;visibility:hidden;transition:opacity .25s,visibility 0s .25s;z-index:7;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+.sidebar.open+.scrim{opacity:1;visibility:visible;transition:opacity .25s}
+.sidebar{padding-top:calc(22px + env(safe-area-inset-top,0px));overflow:auto}
+.mobile-nav{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;z-index:9;background:var(--panel);border-top:1px solid var(--border);padding:4px 4px calc(4px + env(safe-area-inset-bottom,0px))}
+.mobile-nav button{display:flex;flex-direction:column;align-items:center;gap:2px;border:0;background:transparent;color:var(--muted);font-size:11px;padding:6px 2px;min-height:48px}
+.mobile-nav button.active{color:var(--accent);font-weight:700}
+button,select{min-height:44px}
+input,select,textarea{font-size:16px}
+.toast,#toasts{bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+.modal{max-height:94vh;padding:16px}
+.actions button{flex:1 1 auto}
+}
+@media(min-width:761px){.mobile-nav{display:none!important}}
+/* ===== Design system v2: tokens and refinement ===== */
+:root{--r-sm:6px;--r:8px;--r-lg:12px;--radius:12px;--ctl:36px;--fs-xs:12px;--fs-sm:13px;--fs-md:14px;--fs-lg:16px;--fs-2xl:24px}
+body{line-height:1.5;-webkit-font-smoothing:antialiased}
+.stat-value,td,th,.metricline b,.risk-result,.barrow b,.day .pnl,.pnl-card .note{font-variant-numeric:tabular-nums}
+button{min-height:var(--ctl);padding:0 14px;border-radius:var(--r);font-weight:500;font-size:var(--fs-sm)}
+button.primary{box-shadow:none;font-weight:600}
+button.danger{border-color:color-mix(in srgb,var(--red) 40%,var(--border))}
+input:not([type=checkbox]):not([type=color]):not([type=file]),select,textarea{min-height:var(--ctl);border-radius:var(--r);padding:8px 10px;font-size:var(--fs-sm)}
+input[type=color]{padding:2px;min-height:var(--ctl)}
+textarea{min-height:88px}
+.card{border-radius:var(--radius);padding:16px}
+.card:hover{border-color:var(--border);box-shadow:none}
+.stats .card:hover{transform:none}
+.sidebar{padding:20px 12px}
+.brand{font-size:16px;letter-spacing:-.01em}
+.logo{border-radius:var(--r)}
+.nav button{gap:10px;font-weight:500;padding:0 12px;min-height:38px}
+.nav button svg,.mobile-nav svg{flex:none}
+.mobile-nav svg{width:20px;height:20px}
+.mobile-menu svg{width:20px;height:20px}
+.hero-brand .logo{animation:none;box-shadow:none;border-radius:var(--r-lg)}
+.hero-name{background:none;color:var(--text);animation:none;font-weight:700;letter-spacing:-.02em;font-size:clamp(20px,3vw,26px)}
+.topbar h1{font-size:var(--fs-lg);font-weight:600}
+.heading{margin-bottom:20px}
+.heading h2{font-size:var(--fs-2xl);font-weight:650;letter-spacing:-.02em;margin:4px 0}
+.card-head h3{font-size:var(--fs-md);font-weight:600}
+.eyebrow{font-size:11px;letter-spacing:.08em}
+.stat-value{font-size:24px;font-weight:650;letter-spacing:-.02em}
+.table-wrap{border-radius:var(--r-lg)}
+th{font-size:11px;letter-spacing:.06em;padding:10px 14px;font-weight:600}
+td{padding:11px 14px}
+#trades thead th:nth-child(n+6):nth-child(-n+8),#tradeRows td:nth-child(n+6):nth-child(-n+8){text-align:right}
+.pill{border-radius:var(--r-sm);font-weight:500}
+.day{border-radius:var(--r)}
+.modal{border-radius:var(--r-lg);padding:20px}
+.modal-backdrop{background:#000a}
+.modal-backdrop.show{-webkit-backdrop-filter:none;backdrop-filter:none}
+.pmenu,.tst,.toast{border-radius:var(--r);box-shadow:0 8px 24px #0008}
+.chart{animation:tl-fade .4s ease both}
+@media(max-width:760px){button,select,input:not([type=checkbox]):not([type=color]):not([type=file]){min-height:44px}.pnl-card .actions button{min-height:36px}}
+.study-clock{font-size:clamp(40px,12vw,64px);font-weight:650;font-variant-numeric:tabular-nums;letter-spacing:-.02em;margin:10px 0}
+.sel-bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding-bottom:12px}
+.study-panel{position:relative;overflow:hidden}.study-panel:before{content:"";position:absolute;inset:0 0 auto;height:2px;background:var(--accent);opacity:.8}.study-ring{width:min(220px,55vw);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;margin:10px auto 18px;background:conic-gradient(var(--accent) var(--study-progress,0%),var(--border) 0);position:relative;transition:background .35s ease}.study-ring:before{content:"";position:absolute;inset:8px;border-radius:50%;background:var(--panel)}.study-ring .study-clock{position:relative;margin:0;font-size:clamp(36px,10vw,56px)}.study-running .study-ring{animation:study-pulse 3s ease-in-out infinite}.study-complete{animation:study-done .7s ease}.study-quote{border-left:2px solid var(--accent);padding-left:12px;margin:16px 0;color:var(--muted)}.mistake-alert{border-left:3px solid var(--red)}
+@keyframes study-pulse{50%{filter:drop-shadow(0 0 10px color-mix(in srgb,var(--accent) 30%,transparent))}}@keyframes study-done{50%{box-shadow:0 0 0 4px color-mix(in srgb,var(--green) 24%,transparent)}}
+@media(prefers-reduced-motion:reduce){.study-running .study-ring{animation:none}.study-ring{transition:none}}
+</style>
+</head>
+<body>
+<div id="app" class="app">
+<aside class="sidebar" id="sidebar">
+ <div class="brand"><span class="logo" id="brandLogoBox">TL</span><span id="brandName">TradeLedge</span></div>
+ <nav class="nav" id="mainNav" aria-label="Main">
+ <button class="active" data-page="dashboard"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg><span>Overview</span></button>
+ <button data-page="trades"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11l3 3v13H5z"/><path d="M9 11h6M9 15h6"/></svg><span>Trade journal</span></button>
+ <button data-page="tasks"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 12l3 3 5-6"/></svg><span>Tasks & routine</span></button>
+ <button data-page="analytics"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg><span>Analytics</span></button>
+ <button data-page="risk"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6z"/></svg><span>Risk management</span></button>
+ <button data-page="strategies"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="12" r="2"/><circle cx="6" cy="18" r="2"/><path d="M8 6h4a4 4 0 0 1 4 4M8 18h4a4 4 0 0 0 4-4"/></svg><span>Strategies</span></button>
+ <button data-page="calendar"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Trading calendar</span></button>
+ <button data-page="watchlist"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l2.5 5 5.5.8-4 3.9.9 5.5-4.9-2.6-4.9 2.6.9-5.5-4-3.9 5.5-.8z"/></svg><span>Watchlist & plans</span></button>
+ <button data-page="reviews"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg><span>Daily reviews</span></button>
+ <button data-page="mistakeAnalysis"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17.5v.5"/></svg><span>Mistakes</span></button>
+ <button data-page="study"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Study</span></button>
+ <button data-page="settings"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg><span>Admin settings</span></button>
+ </nav>
+ <div class="side-bottom"><button id="logoutBtn">Log out</button></div>
+</aside>
+<div class="scrim" id="scrim"></div>
+<main class="main">
+<header class="topbar"><div class="split"><button class="mobile-menu" id="menuBtn" aria-label="Open menu"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><h1 id="pageTitle">Overview</h1></div><div class="top-actions"><span class="muted desktop-only" id="todayLabel"></span><button id="importFromDevice" class="desktop-only">Import from device</button><button id="adminAccess" class="icon-btn" data-tip="Admin login" aria-label="Admin login"><svg class="ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h3a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3h-3"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg><span class="lbl">Admin login</span></button>
+<div class="pwrap"><button id="profileBtn" class="avatar-btn" aria-haspopup="menu" aria-expanded="false" aria-controls="profileMenu" aria-label="Account menu" data-tip="Account"><span class="avatar" id="avatarBox"></span></button><div id="profileMenu" class="pmenu" role="menu" aria-label="Account"><div class="pm-head"><span class="avatar big" id="pmAvatar"></span><div><strong id="pmName"></strong><span class="badge" id="pmBadge">Local journal</span></div></div><button role="menuitem" data-pm="profile"><svg class="ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>Profile</button><button role="menuitem" data-pm="account"><svg class="ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg>Account settings</button><button role="menuitem" data-pm="prefs"><svg class="ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>Preferences</button><button role="menuitem" data-pm="security"><svg class="ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6z"/></svg>Security</button><button role="menuitem" data-pm="signout" id="pmSignout"><svg class="ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3H6a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h3"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>Sign out of admin</button></div></div><button id="quickAdd" class="primary">Add trade</button></div></header>
+<div class="content">
+<section id="dashboard" class="section active">
+ <div class="hero-brand"><span class="logo" id="heroLogo">TL</span><div><div class="hero-name" id="heroName">TradeLedge</div><div class="hero-sub" id="heroSub"></div></div></div>
+ <div class="heading"><div><div class="eyebrow" id="dashEyebrow">Trading performance</div><h2 id="welcomeTitle">Your trading, in focus.</h2><p id="dashSubText">Every metric is calculated from your saved closed trades.</p></div><div class="actions"><button id="dashExport">Export report</button><button class="primary" data-open-trade>Record trade</button></div></div>
+ <div class="filters"> <div><label>Date range</label><select id="dashRange"><option value="all">All time</option><option value="today">Today</option><option value="week">This week</option><option value="month">This month</option><option value="prevmonth">Previous month</option><option value="year">This year</option><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option><option value="365">Last 12 months</option></select></div>
+ <div><label>Strategy</label><select id="dashStrategy"><option value="">All strategies</option></select></div>
+ <div><label>Instrument</label><input id="dashSymbol" placeholder="All symbols"></div>
+ <div><label>Direction</label><select id="dashDirection"><option value="">Both</option><option>Long</option><option>Short</option></select></div>
+ </div>
+ <div class="grid stats" id="statCards"></div>
+ <div class="card pnl-card" style="margin-bottom:14px"><div class="card-head"><h3>Profit &amp; loss</h3><div class="actions"><button class="primary" data-pnl="daily">Daily</button><button data-pnl="cumulative">Cumulative</button></div></div><canvas id="pnlChart" class="chart" role="img" aria-label="Profit and loss chart"></canvas><div id="pnlSummary" class="note" style="margin-top:8px"></div></div>
+ <div class="grid two-col">
+ <div class="card"><div class="card-head"><h3>Equity curve</h3><small>Starting balance + realized net P&L</small></div><canvas id="equityChart" class="chart" aria-label="Equity curve"></canvas></div>
+ <div class="card"><div class="card-head"><h3>Trade outcomes</h3><small>Closed trades</small></div><div id="outcomeSummary"></div><div id="strategyBars" class="barlist" style="margin-top:18px"></div></div>
+ </div>
+ <div class="grid two-col" style="margin-top:14px">
+ <div class="card"><div class="card-head"><h3>Recent trades</h3><button data-go="trades">View journal →</button></div><div id="recentTrades"></div></div>
+ <div class="card"><div class="card-head"><h3>Trading guardrails</h3><small>Based on your settings</small></div><div id="guardrailSummary"></div></div>
+ </div>
+</section>
+<section id="trades" class="section">
+ <div class="heading"><div><div class="eyebrow">Your records</div><h2>Trade journal</h2><p>Capture execution, outcomes, and lessons learned.</p></div><div class="actions"><button id="exportCsv">Export CSV</button><button id="exportJson">Export JSON</button><button class="primary" data-open-trade>Add trade</button></div></div>
+ <div class="filters"><div class="search"><label>Search</label><input id="tradeSearch" placeholder="Symbol, notes, strategy, trade ID…"></div><div><label>Strategy</label><select id="tradeStrategy"><option value="">All strategies</option></select></div><div><label>Direction</label><select id="tradeDirection"><option value="">All</option><option>Long</option><option>Short</option></select></div><div><label>Result</label><select id="tradeResult"><option value="">All results</option><option value="win">Winner</option><option value="loss">Loser</option><option value="be">Breakeven</option></select></div><div><label>Status</label><select id="tradeStatus"><option value="">All statuses</option><option>Closed</option><option>Open</option><option>Planned</option><option>Cancelled</option></select></div></div>
+ <div class="card" style="padding:0"><div class="card-head" style="padding:16px 16px 0"><h3 id="tradeCount">All trades</h3><div class="actions"><button id="deleteSelected" class="danger">Delete selected</button><button id="importBtn">Import backup</button><input id="importFile" type="file" accept=".json,.csv,application/json,text/csv" class="hidden"></div></div><div class="table-wrap"><table><thead><tr><th><input id="selectAll" type="checkbox" aria-label="Select all trades" style="width:auto"></th><th>Date</th><th>Instrument</th><th>Side</th><th>Entry → Exit</th><th>Qty</th><th>Net P&L</th><th>R</th><th>Strategy</th><th>Status</th><th>Actions</th></tr></thead><tbody id="tradeRows"></tbody></table></div><div id="tradeEmpty" class="empty hidden"><strong>No trades match your filters</strong>Add a trade or clear the search filters.</div></div>
+</section>
+<section id="tasks" class="section">
+ <div class="heading"><div><div class="eyebrow">Discipline & execution</div><h2>Tasks & routine</h2><p>Custom recurring routines, trading pre-checks, and scheduled tasks.</p></div><div class="actions"><button id="openTaskTemplates">Load templates</button><button class="primary" id="addNewTask">New task</button></div></div>
+ <div class="filters">
+ <div><label>Date filter</label><input type="date" id="taskFilterDate"></div>
+ <div><label>Category</label><select id="taskFilterCat"><option value="">All categories</option><option>Pre-market preparation</option><option>Market research</option><option>Technical analysis</option><option>Fundamental analysis</option><option>Trading strategy</option><option>Risk management</option><option>Trade execution preparation</option><option>Trading journal review</option><option>Post-market analysis</option><option>Psychology and discipline</option><option>Learning and backtesting</option><option>Custom category</option></select></div>
+ <div><label>Status</label><select id="taskFilterStatus"><option value="">All statuses</option><option value="pending">Pending</option><option value="completed">Completed</option><option value="missed">Missed / Overdue</option></select></div>
+ <div><label>Priority</label><select id="taskFilterPriority"><option value="">All priorities</option><option>Critical</option><option>High</option><option>Medium</option><option>Low</option></select></div>
+ </div>
+ <div class="grid stats" id="taskStats"></div>
+ <div class="card" style="padding:0">
+ <div class="card-head" style="padding:16px 16px 0"><h3 id="taskSectionTitle">Scheduled occurrences</h3><div class="actions"><button id="taskViewList" class="primary">List view</button><button id="taskViewCalendar">Calendar view</button></div></div>
+ <div id="taskContainer" style="padding:16px"></div>
+ </div>
+</section>
+<section id="analytics" class="section">
+ <div class="heading"><div><div class="eyebrow">Evidence over instinct</div><h2>Performance analytics</h2><p>Analyze closed trades and compare the dimensions that matter.</p></div><button id="printReport">Print report / Save PDF</button></div>
+ <div class="grid stats" id="analyticsStats"></div>
+ <div class="grid two-col">
+ <div class="card"><div class="card-head"><h3>Monthly net P&L</h3></div><canvas id="monthlyChart" class="chart"></canvas></div>
+ <div class="card"><div class="card-head"><h3>Drawdown curve</h3><small>Realized equity only</small></div><canvas id="drawdownChart" class="chart"></canvas></div>
+ <div class="card"><div class="card-head"><h3>P&L by strategy</h3></div><div id="strategyAnalytics" class="barlist"></div></div>
+ <div class="card"><div class="card-head"><h3>P&L by instrument</h3></div><div id="symbolAnalytics" class="barlist"></div></div>
+ <div class="card"><div class="card-head"><h3>Performance by weekday</h3></div><div id="weekdayAnalytics" class="barlist"></div></div>
+ <div class="card"><div class="card-head"><h3>Long vs short</h3></div><div id="sideAnalytics"></div></div>
+ </div>
+</section>
+<section id="risk" class="section">
+ <div class="heading"><div><div class="eyebrow">Protect the downside</div><h2>Risk management</h2><p>Planning tools and guardrails. These do not enforce limits at your broker.</p></div></div>
+ <div class="grid two-col">
+ <div class="card"><div class="card-head"><h3>Position size calculator</h3></div><div class="form-grid">
+ <div class="field"><label>Account equity</label><input id="calcEquity" type="number" min="0" step="any"></div>
+ <div class="field"><label>Risk per trade (%)</label><input id="calcRiskPct" type="number" min="0" max="100" step=".1" value="1"></div>
+ <div class="field"><label>Entry price</label><input id="calcEntry" type="number" min="0" step="any"></div>
+ <div class="field"><label>Stop price</label><input id="calcStop" type="number" min="0" step="any"></div>
+ <div class="field"><label>Contract multiplier</label><input id="calcMult" type="number" min=".000001" step="any" value="1"></div>
+ <div class="field"><label>Estimated costs</label><input id="calcCosts" type="number" min="0" step="any" value="0"></div>
+ </div><div class="risk-result" id="positionResult">Enter prices to calculate</div><p class="note" id="positionNote">Suggested size = (equity × risk %) ÷ (stop distance × multiplier), adjusted for estimated costs.</p></div>
+ <div class="card"><div class="card-head"><h3>Risk guardrails</h3><button id="editRiskSettings">Edit limits</button></div><div id="riskWarnings"></div></div>
+ </div>
+</section>
+<section id="strategies" class="section">
+ <div class="heading"><div><div class="eyebrow">Repeat what works</div><h2>Strategy library</h2><p>Track rules and outcomes for each setup.</p></div><button class="primary" id="addStrategy">New strategy</button></div>
+ <div id="strategyList" class="grid two-col"></div>
+ <div id="strategyEmpty" class="empty hidden"><strong>No strategies yet</strong>Create a strategy and link it to your trades.</div>
+</section>
+<section id="calendar" class="section">
+ <div class="heading"><div><div class="eyebrow">Consistency at a glance</div><h2>Trading calendar</h2><p>Daily realized P&L for closed trades & tasks.</p></div><div class="actions"><button id="prevMonth">←</button><button id="thisMonth">Today</button><button id="nextMonth">→</button></div></div>
+ <div class="card"><div class="card-head"><h3 id="calendarTitle"></h3><small>Tap a day to write or edit its review & tasks</small></div><div class="calendar" id="calendarGrid"></div></div>
+ <div class="card" style="margin-top:14px"><div class="card-head"><h3 id="selectedDateTitle">Daily review & tasks</h3><button id="saveDailyReview" class="primary">Save review</button></div><div class="form-grid">
+ <div class="field"><label>Daily goal</label><input id="reviewGoal" placeholder="e.g. Follow my entry checklist"></div>
+ <div class="field"><label>Followed trading plan?</label><select id="reviewPlan"><option value="">Choose…</option><option>Yes</option><option>Partially</option><option>No</option></select></div>
+ <div class="field"><label>Discipline score (1–10)</label><input id="reviewScore" type="number" min="1" max="10"></div>
+ <div class="field full"><label>Pre-market preparation</label><textarea id="reviewPre" placeholder="Market context, key levels, plan…"></textarea></div>
+ <div class="field full"><label>End-of-day review / lessons</label><textarea id="reviewNotes" placeholder="What went well? What needs improvement?"></textarea></div>
+ </div>
+ <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:15px">
+ <div class="card-head"><h3>Tasks scheduled for this date</h3><button type="button" id="addDayTaskBtn" class="primary">+ Add task for today</button></div>
+ <div id="calendarDayTasksList"></div>
+ </div>
+ </div>
+</section>
+<section id="watchlist" class="section">
+ <div class="heading"><div><div class="eyebrow">Plan before execution</div><h2>Watchlist & trade plans</h2><p>Prices here are manually entered, not live market data.</p></div><button class="primary" id="addPlan">Add plan</button></div>
+ <div id="planList" class="grid two-col"></div><div id="planEmpty" class="empty hidden"><strong>No watchlist plans</strong>Add a symbol, entry, stop, and target to plan a trade.</div>
+</section>
+<section id="reviews" class="section">
+ <div class="heading"><div><div class="eyebrow">Process over outcome</div><h2>Journal & psychology</h2><p>Write daily reflections and identify behavior patterns.</p></div><button class="primary" data-go="calendar">New daily review</button></div>
+ <div class="grid two-col"><div class="card"><div class="card-head"><h3>Recent reflections</h3></div><div id="recentReviews"></div></div><div class="card"><div class="card-head"><h3>Discipline insights</h3></div><div id="psychologyInsights"></div></div></div>
+</section>
+<section id="mistakeAnalysis" class="section">
+ <div class="heading"><div><div class="eyebrow">Learn from experience</div><h2>Mistake analysis</h2><p>Record what went wrong, why, and what to do differently next time.</p></div><button class="primary" id="addMistake">Log mistake</button></div>
+ <div class="grid stats" id="mistakeStats"></div><div class="card" style="margin-bottom:14px"><div class="card-head"><div><h3>Reminder preferences</h3><small>Quiet, in-app reminders before trade entry</small></div><label class="checkrow"><input type="checkbox" id="mistakeReminders"> Enable reminders</label></div><div class="split"><label for="mistakeThreshold">Repeat threshold</label><select id="mistakeThreshold" style="width:auto"><option value="2">2 or more</option><option value="3">3 or more</option><option value="4">4 or more</option><option value="5">5 or more</option></select><label for="mistakeReminderSeverity">Minimum severity</label><select id="mistakeReminderSeverity" style="width:auto"><option value="Low">Low and above</option><option value="Moderate">Moderate and above</option><option value="High">High and above</option><option value="Critical">Critical only</option></select><span class="note">Does not block trade entry. Dismissal is remembered for 24 hours.</span></div></div>
+ <div class="grid two-col">
+ <div class="card"><div class="card-head"><h3>Review before your next session</h3><small>Latest lessons &amp; corrective actions</small></div><div id="mistakeAlerts"></div><div id="mistakeLessons"></div></div>
+ <div class="card"><div class="card-head"><h3>Most frequent categories</h3></div><div id="mistakeCats" class="barlist"></div><div class="card-head" style="margin-top:18px"><h3>By month</h3></div><div id="mistakeMonths" class="barlist"></div><div class="card-head" style="margin-top:18px"><h3>Repeated over time</h3></div><div id="mistakeRepeats"></div></div>
+ </div>
+ <div class="filters" style="margin-top:14px"><div class="search"><label for="mSearch">Search</label><input id="mSearch" placeholder="Keyword in any field…"></div><div><label for="mFilterCat">Category</label><select id="mFilterCat"><option value="">All categories</option></select></div><div><label for="mFrom">From</label><input id="mFrom" type="date"></div><div><label for="mTo">To</label><input id="mTo" type="date"></div><div><label>&nbsp;</label><button type="button" id="mFilterClear">Clear filters</button></div></div>
+ <div id="mistakeList" class="grid two-col"></div>
+ <div id="mistakeEmpty" class="empty hidden"></div>
+</section>
+<section id="study" class="section">
+ <div class="heading"><div><div class="eyebrow">Optional</div><h2>Trading study</h2><p>Study any topic with a simple timer. No targets or streaks — use it only when you want to.</p></div></div>
+ <div class="grid two-col">
+ <div class="card"><div id="studySetup"><div class="form-grid"><div class="field full"><label for="studyTopic">Topic</label><input id="studyTopic" list="studyTopics" maxlength="80" placeholder="Any topic, e.g. Market structure"><datalist id="studyTopics"></datalist></div><div class="field"><label for="studyHours">Hours</label><input id="studyHours" type="number" min="0" max="999" step="1" value="0" inputmode="numeric"></div><div class="field"><label for="studyMinutes">Minutes</label><input id="studyMinutes" type="number" min="0" max="59940" step="1" value="25" inputmode="numeric"></div></div><div class="form-actions" style="justify-content:flex-start"><button type="button" class="primary" id="studyStart">Start studying</button></div></div>
+ <div id="studyRun" class="hidden study-panel"><div class="eyebrow" id="studyRunTopic"></div><div class="study-ring" id="studyRing" role="img" aria-label="Session progress"><div class="study-clock" id="studyClock" role="timer" aria-live="off">00:00:00</div></div><div class="bartrack"><div class="barfill" id="studyBar" style="width:0"></div></div><p class="note" id="studyStatus" style="margin:10px 0"></p><p class="study-quote" id="studyQuote"></p><div class="actions"><button type="button" class="primary" id="studyPause">Pause</button><button type="button" class="primary hidden" id="studyResume">Resume</button><button type="button" id="studyReset">Reset</button><button type="button" id="studyEnd">End session</button></div></div>
+ <p class="note" id="studyMsg" role="status" style="margin-top:12px"></p></div>
+ <div class="card"><div class="card-head"><h3>Previous sessions</h3><button type="button" class="danger" id="studyClear">Clear history</button></div><div id="studyHistory"></div></div>
+ </div>
+</section>
+<section id="account" class="section">
+ <div class="heading"><div><div class="eyebrow">Your profile</div><h2>Account</h2><p>Manage your profile, preferences and admin access.</p></div></div>
+ <div class="grid two-col">
+ <div class="card"><div class="card-head"><h3>Profile</h3><span class="badge" id="acBadge">Local journal</span></div>
+ <div class="split"><span class="avatar big" id="acAvatar"></span><div><input type="file" id="acImage" accept="image/*" class="hidden"><button type="button" id="acPick">Change photo</button> <button type="button" id="acRemove">Remove</button></div></div>
+ <div class="field" style="margin-top:14px"><label for="acName">Display name</label><input id="acName" maxlength="40"></div>
+ <div class="field" style="margin-top:12px"><label for="acMotion">Animations</label><select id="acMotion"><option value="auto">Follow device setting</option><option value="off">Off</option></select></div>
+ <label class="checkrow" style="margin-top:12px"><input type="checkbox" id="acQuiet"> Hide success notifications (errors always show)</label>
+ <div class="form-actions"><button type="button" class="primary" id="acSave">Save profile</button></div></div>
+ <div class="card"><div class="card-head"><h3>Access &amp; security</h3></div>
+ <div class="metricline"><span>Admin panel</span><b id="acAdminState">Locked</b></div>
+ <div class="setting-row"><div><b>Admin settings</b><p>Branding, appearance, trading limits and backups.</p></div><button type="button" id="acOpenAdmin">Open</button></div>
+ <div class="setting-row"><div><b>Sign out of admin</b><p>Lock the admin panel again.</p></div><button type="button" id="acSignout">Sign out</button></div>
+ <p class="note" style="margin-top:12px">Profile details are stored only in this browser.</p></div>
+ </div>
+</section>
+<section id="settings" class="section">
+ <div class="heading"><div><div class="eyebrow">Workspace control</div><h2>Admin settings</h2><p>Customize this local application and manage your branding and data.</p></div></div>
+ <div class="settings-layout"><div class="settings-nav"><button class="active" data-setting-tab="appearance">Appearance</button><button data-setting-tab="content">Website identity</button><button data-setting-tab="trading">Trading defaults</button><button data-setting-tab="security">Security & data</button></div>
+ <div>
+ <div class="card setting-panel" id="setting-appearance"><div class="card-head"><h3>Appearance</h3></div>
+ <div class="setting-row"><div><b>Color theme</b><p>Dark, light, or follow your device.</p></div><select id="themeSelect" class="setting-control"><option value="dark">Dark</option><option value="light">Light</option><option value="system">System</option></select></div>
+ <div class="setting-row"><div><b>Accent color</b><p>Applied to active controls and charts.</p></div><input id="accentColor" type="color" class="setting-control" value="#8b7cff"></div>
+ <div class="setting-row"><div><b>Positive P&L color</b></div><input id="positiveColor" type="color" class="setting-control" value="#39d9a0"></div>
+ <div class="setting-row"><div><b>Negative P&L color</b></div><input id="negativeColor" type="color" class="setting-control" value="#ff6f7d"></div>
+ <div class="setting-row"><div><b>Page background</b><p>Customize the full page background.</p></div><input id="bgColor" type="color" class="setting-control" value="#0b0c0f"></div>
+ <div class="setting-row"><div><b>Card background</b></div><input id="cardColor" type="color" class="setting-control" value="#121418"></div>
+ <div class="setting-row"><div><b>Sidebar / secondary surfaces</b></div><input id="sidebarColor" type="color" class="setting-control" value="#181b21"></div>
+ <div class="setting-row"><div><b>Main text color</b></div><input id="textColor" type="color" class="setting-control" value="#ececee"></div>
+ <div class="setting-row"><div><b>Muted text color</b></div><input id="mutedColor" type="color" class="setting-control" value="#9096a2"></div>
+ <div class="setting-row"><div><b>Border color</b></div><input id="borderColor" type="color" class="setting-control" value="#262a32"></div>
+ <div class="setting-row"><div><b>Interface density</b></div><select id="densitySelect" class="setting-control"><option value="comfortable">Comfortable</option><option value="compact">Compact</option></select></div>
+ <div class="setting-row"><div><b>Card corner radius</b></div><select id="radiusSelect" class="setting-control"><option value="12">12 px</option><option value="16">16 px</option><option value="22">22 px</option></select></div>
+ <div class="setting-row"><div><b>Reset appearance</b><p>Restore default theme and colors.</p></div><button id="resetAppearance">Reset</button></div>
+ </div>
+ <div class="card setting-panel hidden" id="setting-content"><div class="card-head"><h3>Website identity & Admin management</h3><p class="note">Manage application branding, website name, subtitle, logo initials, and browser tab titles directly from the admin panel.</p></div>
+ <div class="field"><label>Website name (Brand & Header)</label><input id="siteName"></div>
+ <div class="field" style="margin-top:13px"><label>Website subtitle / description</label><input id="siteSubtitle" placeholder="e.g. Professional Trading Journal & Routine"></div>
+ <div class="field" style="margin-top:13px"><label>Browser tab title</label><input id="browserTitleInput" value="TradeLedge — Trading Journal" readonly></div>
+ <div class="field" style="margin-top:13px"><label>Brand logo initials (Sidebar)</label><input id="brandLogoInitials" maxlength="3" placeholder="TL"></div>
+ <div class="field" style="margin-top:13px"><label>Brand logo image</label><div class="split"><span class="logo" id="logoPreview">TL</span><input type="file" id="logoFile" accept="image/*" class="hidden"><button type="button" id="logoPick">Upload logo</button><button type="button" id="logoRemove">Remove</button></div><p class="note">Square images work best. Shown in the sidebar and on the dashboard; overrides the initials.</p></div>
+ <div class="field" style="margin-top:13px"><label>Dashboard welcome message</label><input id="welcomeMessage"></div>
+ <div class="field" style="margin-top:13px"><label>Footer / workspace note</label><input id="footerNote"></div>
+ <div class="setting-row" style="margin-top:15px"><div><b>Show equity chart</b><p>Toggle the main dashboard equity chart.</p></div><input id="showEquity" type="checkbox" style="width:auto"></div>
+ <div class="setting-row"><div><b>Show recent trades</b></div><input id="showRecent" type="checkbox" style="width:auto"></div>
+ <div class="form-actions" style="margin-top:20px"><button type="button" id="cancelContentBtn">Cancel</button><button class="primary" id="saveContent">Save website identity</button></div>
+ </div>
+ <div class="card setting-panel hidden" id="setting-trading"><div class="card-head"><h3>Trading defaults & limits</h3></div><div class="form-grid">
+ <div class="field"><label>Starting balance</label><input id="startBalance" type="number" step="any"></div><div class="field"><label>Currency code</label><input id="currency" maxlength="3" placeholder="INR"></div><div class="field"><label>Default multiplier</label><input id="defaultMultiplier" type="number" min=".000001" step="any"></div>
+ <div class="field"><label>Maximum daily loss</label><input id="maxDailyLoss" type="number" min="0" step="any"></div><div class="field"><label>Maximum weekly loss</label><input id="maxWeeklyLoss" type="number" min="0" step="any"></div><div class="field"><label>Max risk per trade (%)</label><input id="maxRiskPct" type="number" min="0" max="100" step=".1"></div>
+ <div class="field"><label>Daily trade limit</label><input id="maxTradesDay" type="number" min="0" step="1"></div><div class="field"><label>Maximum drawdown</label><input id="maxDrawdown" type="number" min="0" step="any"></div><div class="field"><label>Maximum consecutive losses</label><input id="maxLossStreak" type="number" min="0" step="1"></div>
+ </div><button class="primary" id="saveTrading" style="margin-top:16px">Save trading settings</button></div>
+ <div class="card setting-panel hidden" id="setting-security"><div class="card-head"><h3>Security & data</h3></div>
+ <div class="setting-row"><div><b>Change demo credentials</b><p>Only a local convenience, not secure authentication.</p></div><button id="changeCredentials">Change credentials</button></div>
+ <div class="setting-row"><div><b>Export complete backup</b><p>Trades, strategies, plans, reviews, tasks, and settings.</p></div><button id="fullBackup">Download backup</button></div>
+ <div class="setting-row"><div><b>Restore backup</b><p>Import a TradeLedge JSON backup.</p></div><button id="restoreBackup">Choose file</button></div>
+ <div class="setting-row"><div><b>Print performance report</b><p>Use your browser's print dialog to save as PDF.</p></div><button id="settingsPrint">Print</button></div>
+ <div class="setting-row"><div><b>Local storage</b><p id="storageDetail">Data stays in this browser.</p></div><button id="refreshStorage">Refresh</button></div>
+ <div class="setting-row"><div><b>Reset all journal data</b><p>Cannot be undone. Export a backup first.</p></div><button id="resetData" class="danger">Reset data</button></div>
+ <p class="note" style="margin-top:18px">Production warning: this single-file demo cannot securely protect admin routes, hide credentials from source inspection, sync across devices, or enforce authorization. For deployment, use Firebase Authentication and server-enforced Firestore/Storage rules.</p>
+ </div>
+ </div></div>
+ <p class="note" id="footerText" style="margin-top:18px"></p>
+</section></div>
+</main>
+</div>
+<!-- Modals -->
+<div class="modal-backdrop" id="tradeModal" role="dialog" aria-modal="true" aria-labelledby="tradeModalTitle"><div class="modal">
+<div class="modal-head"><h2 id="tradeModalTitle">Record trade</h2><button data-close="tradeModal" aria-label="Close">✕</button></div>
+<form id="tradeForm">
+<input type="hidden" id="tradeId">
+<div class="form-grid">
+<div class="field"><label for="tradeDate">Trade date *</label><input id="tradeDate" type="date" required></div>
+<div class="field"><label for="tradeSymbolInput">Symbol / instrument *</label><input id="tradeSymbolInput" required placeholder="e.g. RELIANCE"></div>
+<div class="field"><label for="tradeAsset">Asset class</label><select id="tradeAsset"><option>Stocks</option><option>Options</option><option>Futures</option><option>Forex</option><option>Cryptocurrency</option><option>Indices</option><option>Commodities</option></select></div>
+<div class="field"><label for="tradeDirectionInput">Direction *</label><select id="tradeDirectionInput"><option>Long</option><option>Short</option></select></div>
+<div class="field"><label for="tradeStatusInput">Status</label><select id="tradeStatusInput"><option>Closed</option><option>Open</option><option>Planned</option><option>Cancelled</option></select></div>
+<div class="field"><label for="tradeStrategyInput">Strategy</label><select id="tradeStrategyInput"><option value="">Unassigned</option></select></div>
+<div class="field"><label for="entryPrice">Average entry price *</label><input id="entryPrice" type="number" min="0" step="any" required></div>
+<div class="field"><label for="exitPrice">Average exit price</label><input id="exitPrice" type="number" min="0" step="any"></div>
+<div class="field"><label for="quantity">Quantity *</label><input id="quantity" type="number" min="0.000001" step="any" required></div>
+<div class="field"><label for="multiplier">Contract multiplier</label><input id="multiplier" type="number" min="0.000001" step="any"></div>
+<div class="field"><label for="stopLoss">Stop-loss price</label><input id="stopLoss" type="number" min="0" step="any"></div>
+<div class="field"><label for="targetPrice">Target price</label><input id="targetPrice" type="number" min="0" step="any"></div>
+<div class="field"><label for="entryFees">Entry fees</label><input id="entryFees" type="number" min="0" step="any" value="0"></div>
+<div class="field"><label for="exitFees">Exit fees</label><input id="exitFees" type="number" min="0" step="any" value="0"></div>
+<div class="field"><label for="otherCosts">Taxes / other costs</label><input id="otherCosts" type="number" min="0" step="any" value="0"></div>
+<div class="field"><label for="entryTime">Entry time</label><input id="entryTime" type="time"></div>
+<div class="field"><label for="exitTime">Exit time</label><input id="exitTime" type="time"></div>
+<div class="field"><label for="timeframe">Timeframe</label><select id="timeframe"><option value="">Unspecified</option><option>1m</option><option>3m</option><option>5m</option><option>15m</option><option>30m</option><option>1h</option><option>4h</option><option>Daily</option><option>Swing</option></select></div>
+<div class="field"><label for="session">Trading session</label><select id="session"><option value="">Unspecified</option><option>Pre-market</option><option>Opening</option><option>Morning</option><option>Midday</option><option>Closing</option><option>After-hours</option><option>London</option><option>New York</option><option>Asia</option></select></div>
+<div class="field"><label for="confidence">Confidence (1–10)</label><input id="confidence" type="number" min="1" max="10"></div>
+<div class="field"><label for="execution">Execution quality (1–10)</label><input id="execution" type="number" min="1" max="10"></div>
+<div class="field"><label for="emotion">Emotion during trade</label><select id="emotion"><option value="">Unspecified</option><option>Calm</option><option>Confident</option><option>Anxious</option><option>Fearful</option><option>Greedy</option><option>Frustrated</option><option>Impulsive</option></select></div>
+<div class="field"><label for="ruleFollowed">Followed plan?</label><select id="ruleFollowed"><option value="">Unspecified</option><option>Yes</option><option>Partially</option><option>No</option></select></div>
+<div class="field full"><label for="entryReason">Entry reason / setup</label><textarea id="entryReason" placeholder="Why did you enter this trade?"></textarea></div>
+<div class="field full"><label for="exitReason">Exit reason</label><textarea id="exitReason" placeholder="Why did you exit?"></textarea></div>
+<div class="field full"><label for="tradeMistakeCats">Mistake categories (optional; select any that apply)</label><select id="tradeMistakeCats" multiple size="4" aria-describedby="mistakeCaptureHelp"><option>FOMO entry</option><option>Revenge trading</option><option>Overtrading</option><option>Early exit</option><option>Late entry</option><option>Stop-loss violation</option><option>Oversized position</option><option>Poor risk management</option><option>Entry without confirmation</option><option>Emotional decision-making</option><option>Ignoring the trading plan</option><option>Strategy deviation</option><option>Other</option></select><p class="note" id="mistakeCaptureHelp">Optional. A loss alone is never classified as a mistake.</p></div>
+<div class="field"><label for="tradeMistakeSeverity">Recorded severity</label><select id="tradeMistakeSeverity"><option value="">Unclassified</option><option>Low</option><option>Moderate</option><option>High</option><option>Critical</option></select></div>
+<div class="field full"><label for="mistakes">Mistakes and lessons learned</label><textarea id="mistakes" placeholder="Optional explanation or lesson. What would you repeat or change?"></textarea></div>
+<div class="field full"><label for="tradeNotes">Notes and tags (separate tags with commas)</label><textarea id="tradeNotes" placeholder="Market context, checklist, screenshot URL, tags…"></textarea></div>
+</div>
+<div class="card" style="margin-top:16px;background:var(--panel2)"><div class="split" style="justify-content:space-between"><span class="muted">Estimated gross P&L</span><strong id="previewGross">—</strong><span class="muted">Estimated net P&L</span><strong id="previewNet">—</strong><span class="muted">R-multiple</span><strong id="previewR">—</strong></div><p class="note">Calculations are estimates based on average entry/exit, quantity, multiplier, and costs. Complex partial fills must be consolidated to weighted averages in this version.</p></div>
+<div class="form-actions"><button type="button" data-close="tradeModal">Cancel</button><button type="button" id="saveDraft">Save as draft</button><button class="primary" type="submit">Save trade</button></div>
+</form></div></div>
+<!-- Task Modal -->
+<div class="modal-backdrop" id="taskModal" role="dialog" aria-modal="true"><div class="modal"><div class="modal-head"><h2 id="taskModalTitle">Create custom task</h2><button data-close="taskModal">✕</button></div><form id="taskForm">
+<input type="hidden" id="taskId">
+<div class="form-grid">
+ <div class="field span2"><label>Task title *</label><input id="taskTitle" required placeholder="e.g. Review economic calendar & risk limits"></div>
+ <div class="field"><label>Category</label><select id="taskCategory"><option>Pre-market preparation</option><option>Market research</option><option>Technical analysis</option><option>Fundamental analysis</option><option>Trading strategy</option><option>Risk management</option><option>Trade execution preparation</option><option>Trading journal review</option><option>Post-market analysis</option><option>Psychology and discipline</option><option>Learning and backtesting</option><option>Custom category</option></select></div>
+ <div class="field"><label>Priority</label><select id="taskPriority"><option>Medium</option><option>High</option><option>Critical</option><option>Low</option></select></div>
+ <div class="field"><label>Start date *</label><input type="date" id="taskStartDate" required></div>
+ <div class="field"><label>Due date / End date</label><input type="date" id="taskEndDate"></div>
+ <div class="field"><label>Recurrence</label><select id="taskRecurrence"><option value="none">Does not repeat</option><option value="daily">Every day</option><option value="weekday">Every weekday (Mon-Fri)</option><option value="weekend">Every weekend (Sat-Sun)</option><option value="weekly">Every week</option><option value="biweekly">Every two weeks</option><option value="monthly">Every month</option><option value="custom_days">Every N days</option></select></div>
+ <div class="field" id="customIntervalField"><label>Repeat every N days (if custom)</label><input type="number" id="taskInterval" min="1" value="1"></div>
+ <div class="field"><label>Number of repetitions (Exact count)</label><input type="number" id="taskRepetitions" min="1" value="10" placeholder="e.g. 10"></div>
+ <div class="field full"><label>Detailed description or notes</label><textarea id="taskDescription" placeholder="Check liquidity, VIX, news events, and prepare setup checklists..."></textarea></div>
+</div>
+<div class="form-actions"><button type="button" data-close="taskModal">Cancel</button><button class="primary" type="submit">Save task</button></div>
+</form></div></div>
+<div class="modal-backdrop" id="strategyModal" role="dialog" aria-modal="true"><div class="modal small"><div class="modal-head"><h2 id="strategyModalTitle">New strategy</h2><button data-close="strategyModal">✕</button></div><form id="strategyForm"><input type="hidden" id="strategyId"><div class="field"><label>Strategy name *</label><input id="strategyName" required></div><div class="field" style="margin-top:13px"><label>Description / market conditions</label><textarea id="strategyDescription"></textarea></div><div class="field" style="margin-top:13px"><label>Entry and exit rules</label><textarea id="strategyRules"></textarea></div><div class="field" style="margin-top:13px"><label>Timeframe / indicators</label><input id="strategyTimeframe" placeholder="e.g. 5m, VWAP, volume"></div><div class="form-actions"><button type="button" data-close="strategyModal">Cancel</button><button class="primary">Save strategy</button></div></form></div></div>
+<div class="modal-backdrop" id="planModal" role="dialog" aria-modal="true"><div class="modal small"><div class="modal-head"><h2 id="planModalTitle">New trade plan</h2><button data-close="planModal">✕</button></div><form id="planForm"><input type="hidden" id="planId"><div class="field"><label>Symbol *</label><input id="planSymbol" required></div><div class="form-grid" style="margin-top:13px"><div class="field"><label>Direction</label><select id="planDirection"><option>Long</option><option>Short</option></select></div><div class="field"><label>Entry</label><input id="planEntry" type="number" step="any"></div><div class="field"><label>Stop</label><input id="planStop" type="number" step="any"></div><div class="field"><label>Target</label><input id="planTarget" type="number" step="any"></div><div class="field"><label>Status</label><select id="planStatus"><option>Planned</option><option>Triggered</option><option>Invalidated</option><option>Completed</option></select></div><div class="field"><label>Strategy</label><select id="planStrategy"><option value="">Unassigned</option></select></div><div class="field full"><label>Notes</label><textarea id="planNotes"></textarea></div></div><div class="form-actions"><button type="button" data-close="planModal">Cancel</button><button class="primary">Save plan</button></div></form></div></div>
+<div class="modal-backdrop" id="adminLoginModal" role="dialog" aria-modal="true"><div class="modal small"><div class="modal-head"><h2>Administrator access</h2><button type="button" data-close="adminLoginModal">✕</button></div><p class="note">The journal is open for everyday use. Sign in only when you need to edit admin settings & branding.</p><form id="adminLoginForm"><div class="field"><label for="adminLoginUser">Admin username</label><input id="adminLoginUser" autocomplete="username" required value="Karthik"></div><div class="field" style="margin-top:12px"><label for="adminLoginPass">Password</label><div class="split"><input id="adminLoginPass" type="password" autocomplete="current-password" required style="flex:1"><button type="button" id="toggleAdminPassword">Show</button></div></div><p id="adminLoginError" class="negative hidden" role="alert">Incorrect username or password.</p><div class="form-actions"><button type="button" data-close="adminLoginModal">Cancel</button><button class="primary" type="submit">Unlock admin panel</button></div></form><p class="note">Local demo protection only. A single HTML file cannot provide secure production authentication.</p></div></div>
+<div class="modal-backdrop" id="credentialsModal" role="dialog" aria-modal="true"><div class="modal small"><div class="modal-head"><h2>Change demo credentials</h2><button data-close="credentialsModal">✕</button></div><form id="credentialsForm"><div class="field"><label>New username</label><input id="newUsername" required></div><div class="field" style="margin-top:12px"><label>Current password</label><input id="currentPassword" type="password" required></div><div class="field" style="margin-top:12px"><label>New password</label><input id="newPassword" type="password" minlength="8" required></div><div class="form-actions"><button type="button" data-close="credentialsModal">Cancel</button><button class="primary">Update</button></div></form></div></div>
+<div class="modal-backdrop" id="profileModal" role="dialog" aria-modal="true" aria-labelledby="pfTitle"><div class="modal small"><div class="modal-head"><h2 id="pfTitle">Profile &amp; preferences</h2><button type="button" data-close="profileModal" aria-label="Close">✕</button></div><form id="profileForm"><div class="split"><span class="avatar big" id="pfAvatar"></span><div><input type="file" id="pfImage" accept="image/*" class="hidden"><button type="button" id="pfPick">Change photo</button> <button type="button" id="pfRemove">Remove</button></div></div><div class="field" style="margin-top:12px"><label for="pfName">Display name</label><input id="pfName" maxlength="40" required></div><div class="field" style="margin-top:12px"><label for="pfMotion">Animations</label><select id="pfMotion"><option value="auto">Follow device setting</option><option value="off">Off</option></select></div><label class="checkrow" style="margin-top:12px"><input type="checkbox" id="pfQuiet"> Hide success notifications (errors always show)</label><div class="form-actions"><button type="button" data-close="profileModal">Cancel</button><button class="primary" type="submit">Save profile</button></div></form><p class="note">Stored only in this browser. Passwords are never shown here.</p></div></div>
+<div class="modal-backdrop" id="mistakeModal" role="dialog" aria-modal="true" aria-labelledby="mistakeModalTitle"><div class="modal small"><div class="modal-head"><h2 id="mistakeModalTitle">Log mistake</h2><button type="button" data-close="mistakeModal" aria-label="Close">✕</button></div><form id="mistakeForm"><input type="hidden" id="mistakeId">
+<div class="field"><label for="mDate">Trade date *</label><input id="mDate" type="date" required></div>
+<div class="field" style="margin-top:12px"><label for="mTrade">Trade reference (optional)</label><select id="mTrade"><option value="">None</option></select></div>
+<div class="field" style="margin-top:12px"><label for="mCategory">Mistake category *</label><select id="mCategory"></select></div>
+<div class="field hidden" id="mCustomWrap" style="margin-top:12px"><label for="mCustom">Custom category *</label><input id="mCustom" maxlength="40"></div>
+<div class="field" style="margin-top:12px"><label for="mWhat">What went wrong *</label><textarea id="mWhat" required></textarea></div>
+<div class="field" style="margin-top:12px"><label for="mWhy">Why it happened</label><textarea id="mWhy"></textarea></div>
+<div class="field" style="margin-top:12px"><label for="mAction">Corrective action</label><textarea id="mAction"></textarea></div>
+<div class="field" style="margin-top:12px"><label for="mLesson">Lesson learned</label><input id="mLesson" maxlength="200"></div>
+<div class="field" style="margin-top:12px"><label for="mSeverity">Severity</label><select id="mSeverity"><option value="">Unclassified</option><option>Low</option><option>Moderate</option><option>High</option><option>Critical</option></select></div>
+<div class="field" style="margin-top:12px"><label for="mImpact">Financial impact (optional)</label><input id="mImpact" type="number" step="any" inputmode="decimal"></div>
+<div class="form-actions"><button type="button" data-close="mistakeModal">Cancel</button><button class="primary" type="submit">Save</button></div></form></div></div>
+<nav class="mobile-nav" id="mobileNav" aria-label="Primary navigation">
+<button data-mpage="dashboard" class="active"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Dashboard</button>
+<button data-mpage="analytics"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>Analytics</button>
+<button data-mpage="calendar"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Calendar</button>
+<button id="mobileAccount" data-mpage="account" aria-label="Account"><span class="avatar" id="navAvatar" aria-hidden="true"></span>Account</button>
+</nav>
+<div id="toasts" aria-live="polite"></div>
+<div id="toast" class="toast hidden" role="status"></div>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const today=()=>ymd(new Date());
+const uid=prefix=>prefix+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);
+const num=v=>{const n=Number(v);return Number.isFinite(n)?n:0};
+const val=id=>$(id).value;
+const setval=(id,v)=>{$(id).value=v??''};
+const safe=(v)=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=(n,code=state.settings.currency)=>{if(!Number.isFinite(Number(n)))return '—';try{return new Intl.NumberFormat('en-IN',{style:'currency',currency:(code||'INR').toUpperCase(),maximumFractionDigits:2}).format(Number(n))}catch{return (code||'INR')+' '+Number(n).toFixed(2)}};
+const pct=n=>Number.isFinite(n)?n.toFixed(1)+'%':'—';
+const defaults={
+ username:'Karthik',
+ password:'karthik@123',
+ settings:{
+ mistakeReminderEnabled:false,mistakeReminderThreshold:3,mistakeReminderSeverity:'Moderate',mistakeReminderDismissed:{},
+ theme:'dark',bgColor:'#0b0c0f',cardColor:'#121418',sidebarColor:'#181b21',textColor:'#ececee',mutedColor:'#9096a2',borderColor:'#262a32',accent:'#8b7cff',positive:'#39d9a0',negative:'#ff6f7d',density:'comfortable',radius:12,
+ siteName:'TradeLedge',
+ siteSubtitle:'Professional Trading Journal & Routine',
+ browserTitle:'TradeLedge — Trading Journal',
+ brandLogoInitials:'TL',
+ welcome:'Your trading, in focus.',
+ footer:'Private local workspace • Back up your data regularly',
+ showEquity:true,showRecent:true,startBalance:100000,currency:'INR',defaultMultiplier:1,maxDailyLoss:3000,maxWeeklyLoss:8000,maxRiskPct:1,maxTradesDay:5,maxDrawdown:20000,maxLossStreak:3
+ },
+ trades:[],strategies:[],plans:[],reviews:{},tasks:[],taskOccurrences:[],taskTombstones:[],mistakes:[],study:{active:null,history:[]}
+};
+let state=structuredClone(defaults),db=null,dbReady=false,adminUnlocked=false,sessionAt=Date.now(),selectedDate=today(),calendarCursor=new Date(),selectedIds=new Set(),sortKey='date',sortDir=-1;const STORE='tradeledger_state_v1';let pnlMode='daily',studyNote='',taskCalCursor=new Date(),taskSelDate=today(),selOcc=new Set();
+function toast(msg){toastImpl(msg)}
+function mergeState(saved){
+ state={...structuredClone(defaults),...(saved||{})};
+ state.settings={...defaults.settings,...(saved?.settings||{})};
+ {const OLD={bgColor:'#000000',cardColor:'#080808',sidebarColor:'#111111',textColor:'#f5f5f5',mutedColor:'#a3a3a3',borderColor:'#242424'};Object.entries(OLD).forEach(([k,v])=>{if(state.settings[k]===v)state.settings[k]=defaults.settings[k]});if(Number(state.settings.radius)===16)state.settings.radius=12;state.settings.siteName='TradeLedge';state.settings.browserTitle='TradeLedge — Trading Journal'}
+ state.trades=Array.isArray(saved?.trades)?saved.trades:[];
+ state.strategies=Array.isArray(saved?.strategies)?saved.strategies:[];
+ state.plans=Array.isArray(saved?.plans)?saved.plans:[];
+ state.reviews=saved?.reviews&&typeof saved.reviews==='object'?saved.reviews:{};
+ state.tasks=Array.isArray(saved?.tasks)?saved.tasks:[];
+ state.taskOccurrences=Array.isArray(saved?.taskOccurrences)?saved.taskOccurrences:[];
+ state.taskTombstones=Array.isArray(saved?.taskTombstones)?saved.taskTombstones:[];
+ state.mistakes=Array.isArray(saved?.mistakes)?saved.mistakes:[];
+ {const st=saved?.study;state.study={active:st&&st.active&&typeof st.active==='object'?st.active:null,history:Array.isArray(st?.history)?st.history:[]}}
+ ensureTaskOccurrences();
+ syncAllTradeMistakes();
+}
+function openDB(){return new Promise((resolve,reject)=>{if(!('indexedDB'in window)){resolve(null);return}const req=indexedDB.open('TradeLedgerDB',2);req.onupgradeneeded=()=>{const d=req.result;if(!d.objectStoreNames.contains('state'))d.createObjectStore('state')};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
+async function loadState(){
+ try{
+ db=await openDB();
+ if(db){
+ const saved=await new Promise((resolve,reject)=>{const tx=db.transaction('state','readonly'),r=tx.objectStore('state').get('main');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});
+ if(saved)mergeState(saved);
+ else{const old=localStorage.getItem(STORE);if(old){mergeState(JSON.parse(old));await persist()}}
+ dbReady=true;
+ }else{const old=localStorage.getItem(STORE);if(old)mergeState(JSON.parse(old))}
+ }catch(e){console.error(e);try{const old=localStorage.getItem(STORE);if(old)mergeState(JSON.parse(old))}catch{}}
+ ensureTaskOccurrences();
+ try{await persist()}catch{}
+}
+async function persist(){
+ try{
+ if(db){
+ await new Promise((resolve,reject)=>{const tx=db.transaction('state','readwrite');tx.objectStore('state').put(state,'main');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)});
+ return true;
+ }
+ localStorage.setItem(STORE,JSON.stringify(state));
+ return true;
+ }catch(e){console.error(e);toast('Storage failed. Export a backup.');return false}
+}
+/* ===== RECURRENCE & TASK ENGINE ===== */
+function addDays(dateStr,days){
+ const d=new Date(dateStr+'T00:00:00');
+ d.setDate(d.getDate()+days);
+ return ymd(d);
+}
+function ensureTaskOccurrences(){
+ if(!Array.isArray(state.tasks))state.tasks=[];
+ if(!Array.isArray(state.taskOccurrences))state.taskOccurrences=[];
+ if(!Array.isArray(state.taskTombstones))state.taskTombstones=[];
+ const existingMap=new Set([...state.taskOccurrences.map(o=>`${o.taskId}_${o.date}`),...state.taskTombstones]);
+ state.tasks.forEach(task=>{
+ const start=task.startDate||today();
+ const repLimit=Number(task.repetitions)||10;
+ const rule=task.recurrence||'none';
+ let cur=start;
+ let count=0;
+ while(count<repLimit && count<365){
+ let match=true;
+ const dObj=new Date(cur+'T00:00:00');
+ const dayOfWeek=dObj.getDay(); // 0 Sun, 6 Sat
+ if(rule==='weekday'&&(dayOfWeek===0||dayOfWeek===6))match=false;
+ if(rule==='weekend'&&(dayOfWeek>=1&&dayOfWeek<=5))match=false;
+ const key=`${task.id}_${cur}`;
+ if(match){
+ if(!existingMap.has(key)){
+ state.taskOccurrences.push({
+ id:uid('OCC'),
+ taskId:task.id,
+ date:cur,
+ status:'pending', // pending, completed, skipped, missed
+ completedAt:null,
+ notes:''
+ });
+ existingMap.add(key);
+ }
+ count++;
+ }
+ // Advance cur date
+ if(rule==='daily'||rule==='weekday'||rule==='weekend')cur=addDays(cur,1);
+ else if(rule==='weekly')cur=addDays(cur,7);
+ else if(rule==='biweekly')cur=addDays(cur,14);
+ else if(rule==='monthly'){
+ const dt=new Date(cur+'T00:00:00');
+ dt.setMonth(dt.getMonth()+1);
+ cur=ymd(dt);
+ } else if(rule==='custom_days'){
+ const interval=Math.max(1,Number(task.interval)||1);
+ cur=addDays(cur,interval);
+ } else {
+ // none
+ break;
+ }
+ if(task.endDate && cur>task.endDate)break;
+ }
+ });
+}
+function closedTrades(trades=state.trades){return trades.filter(t=>t.status==='Closed'&&Number.isFinite(Number(t.net)))}
+function tradeCalc(t){const e=num(t.entry),x=num(t.exit),q=num(t.qty),m=num(t.multiplier)||1,dir=t.direction==='Short'?-1:1;const gross=(x-e)*q*m*dir;const costs=num(t.entryFees)+num(t.exitFees)+num(t.otherCosts);const net=gross-costs;const stop=num(t.stop);const risk=stop>0?Math.abs(e-stop)*q*m:0;return{gross,costs,net,risk,r:risk>0?net/risk:null}}
+function hydrateTrade(raw){const t={...raw};t.id=t.id||uid('TRD');t.date=t.date||today();t.status=t.status||'Closed';t.direction=t.direction==='Short'?'Short':'Long';t.multiplier=num(t.multiplier)||num(state.settings.defaultMultiplier)||1;if(t.status==='Closed'&&num(t.exit)>0){const c=tradeCalc(t);t.gross=c.gross;t.costs=c.costs;t.net=c.net;t.risk=c.risk;t.r=c.r}else{t.gross=null;t.costs=num(t.entryFees)+num(t.exitFees)+num(t.otherCosts);t.net=null;t.risk=null;t.r=null}return t}
+function tradeDateTime(t){return (t.date||'')+'T'+(t.exitTime||t.entryTime||'00:00')}
+function filteredTrades(){let a=[...state.trades];const range=$('dashRange')?.value||'all',strategy=$('dashStrategy')?.value||'',symbol=($('dashSymbol')?.value||'').trim().toLowerCase(),direction=$('dashDirection')?.value||'';if(range!=='all'){const n=new Date(),Y=n.getFullYear(),M=n.getMonth();let min,max='9999-12-31';if(range==='today')min=ymd(n);else if(range==='week'){const d=new Date(n);d.setDate(n.getDate()-((n.getDay()+6)%7));min=ymd(d)}else if(range==='month')min=ymd(new Date(Y,M,1));else if(range==='prevmonth'){min=ymd(new Date(Y,M-1,1));max=ymd(new Date(Y,M,0))}else if(range==='year')min=ymd(new Date(Y,0,1));else{const d=new Date(n);d.setDate(d.getDate()-Number(range));min=ymd(d)}a=a.filter(t=>t.date>=min&&t.date<=max)}if(strategy)a=a.filter(t=>t.strategy===strategy);if(symbol)a=a.filter(t=>(t.symbol||'').toLowerCase().includes(symbol));if(direction)a=a.filter(t=>t.direction===direction);return a}
+function metrics(trades){const c=closedTrades(trades),wins=c.filter(t=>t.net>0),losses=c.filter(t=>t.net<0),grossWin=wins.reduce((s,t)=>s+num(t.net),0),grossLoss=losses.reduce((s,t)=>s+Math.abs(num(t.net)),0),net=c.reduce((s,t)=>s+num(t.net),0),rs=c.map(t=>t.r).filter(r=>r!=null&&Number.isFinite(Number(r))).map(Number);let peak=num(state.settings.startBalance),equity=peak,maxDD=0,winStreak=0,lossStreak=0,curW=0,curL=0;const ordered=[...c].sort((a,b)=>tradeDateTime(a).localeCompare(tradeDateTime(b)));const curve=[];for(const t of ordered){equity+=num(t.net);peak=Math.max(peak,equity);maxDD=Math.max(maxDD,peak-equity);curve.push({date:t.date,equity,net:num(t.net)});if(t.net>0){curW++;curL=0;winStreak=Math.max(winStreak,curW)}else if(t.net<0){curL++;curW=0;lossStreak=Math.max(lossStreak,curL)}else{curW=0;curL=0}}return{closed:c,wins,losses,grossWin,grossLoss,net,winRate:c.length?wins.length/c.length*100:0,avg:c.length?net/c.length:0,avgWin:wins.length?grossWin/wins.length:0,avgLoss:losses.length?grossLoss/losses.length:0,profitFactor:grossLoss?grossWin/grossLoss:(grossWin?Infinity:0),expectancy:c.length?net/c.length:0,avgR:rs.length?rs.reduce((a,b)=>a+b,0)/rs.length:null,best:wins.length?Math.max(...wins.map(t=>t.net)):null,worst:losses.length?Math.min(...losses.map(t=>t.net)):null,balance:num(state.settings.startBalance)+net,returnPct:num(state.settings.startBalance)?net/num(state.settings.startBalance)*100:0,maxDD,winStreak:curW,lossStreak:curL,curve,peak}}
+function statCard(label,value,sub='',cls=''){return `<div class="card"><div class="stat-label">${safe(label)}</div><div class="stat-value ${cls}">${value}</div><div class="stat-sub">${safe(sub)}</div></div>`}
+function signed(n){return (n>0?'+':'')+fmt(n)}
+function populateStrategies(){const opts='<option value="">All strategies</option>'+state.strategies.map(s=>`<option value="${safe(s.name)}">${safe(s.name)}</option>`).join('');['dashStrategy','tradeStrategy'].forEach(id=>{const old=$(id).value;$(id).innerHTML=opts;$(id).value=old});const opts2='<option value="">Unassigned</option>'+state.strategies.map(s=>`<option value="${safe(s.name)}">${safe(s.name)}</option>`).join('');['tradeStrategyInput','planStrategy'].forEach(id=>{const old=$(id).value;$(id).innerHTML=opts2;$(id).value=old})}
+function renderDashboard(){const t=filteredTrades(),m=metrics(t),c=m.closed;const cards=[['Net P&L',signed(m.net),`${c.length} closed trades`,m.net>0?'positive':m.net<0?'negative':''],['Win rate',pct(m.winRate),`${m.wins.length} wins · ${m.losses.length} losses`,m.winRate>=50?'positive':''],['Profit factor',m.profitFactor===Infinity?'∞':m.profitFactor.toFixed(2),'Gross wins ÷ gross losses',m.profitFactor>=1?'positive':''],['Expectancy',signed(m.expectancy),'Average net result per closed trade',m.expectancy>0?'positive':m.expectancy<0?'negative':''],['Account balance',fmt(m.balance),'Starting balance + realized net P&L',''],['Max drawdown',fmt(m.maxDD),'Peak-to-trough realized equity','negative'],['Average winner',m.wins.length?fmt(m.avgWin):'—','Winning trades only','positive'],['Average loser',m.losses.length?fmt(-m.avgLoss):'—','Absolute average losing trade','negative']];$('statCards').innerHTML=cards.map(a=>statCard(...a)).join('');$('outcomeSummary').innerHTML=`<div class="metricline"><span>Closed trades</span><b>${c.length}</b></div><div class="metricline"><span>Winners</span><b class="positive">${m.wins.length}</b></div><div class="metricline"><span>Losers</span><b class="negative">${m.losses.length}</b></div><div class="metricline"><span>Breakeven</span><b>${c.filter(x=>x.net===0).length}</b></div><div class="metricline"><span>Average R-multiple</span><b>${m.avgR===null?'—':m.avgR.toFixed(2)+'R'}</b></div><div class="metricline"><span>Current streak</span><b>${m.winStreak?m.winStreak+' wins':m.lossStreak?m.lossStreak+' losses':'—'}</b></div>`;
+const byS=groupSum(c,t=>t.strategy||'Unassigned'),max=Math.max(1,...Object.values(byS).map(Math.abs));$('strategyBars').innerHTML=Object.entries(byS).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([k,v])=>`<div class="barrow"><span>${safe(k)}</span><div class="bartrack"><div class="barfill" style="width:${Math.abs(v)/max*100}%;background:${v<0?'var(--red)':'var(--accent)'}"></div></div><b class="${v>=0?'positive':'negative'}">${fmt(v)}</b></div>`).join('')||'<div class="empty">Record closed trades to see strategy performance.</div>';
+$('recentTrades').innerHTML=state.settings.showRecent?renderTradeMini([...t].sort((a,b)=>tradeDateTime(b).localeCompare(tradeDateTime(a))).slice(0,5)):'<p class="muted">Recent trades are hidden in content settings.</p>';
+{const dly=groupSum(c,t=>t.date),days=Object.keys(dly).sort(),vs=days.map(d=>dly[d]);if(pnlMode==='daily')drawBarChart($('pnlChart'),vs,days.map(d=>d.slice(5)));else{let run=0;drawLineChart($('pnlChart'),vs.map(v=>run+=v),days.map(d=>d.slice(5)),true)}$('pnlSummary').textContent=days.length?`Best day ${signed(Math.max(...vs))} · Worst day ${signed(Math.min(...vs))} · ${days.length} trading day${days.length===1?'':'s'}`:'No closed trades in this period.'}
+$('guardrailSummary').innerHTML=guardrailHTML(c);if(state.settings.showEquity){$('equityChart').closest('.card').classList.remove('hidden');drawLineChart($('equityChart'),m.curve.map(x=>x.equity),m.curve.map(x=>x.date),true)}else{$('equityChart').closest('.card').classList.add('hidden')}}
+function groupSum(trades,keyFn){const out={};trades.forEach(t=>{const k=keyFn(t);out[k]=(out[k]||0)+num(t.net)});return out}
+function renderTradeMini(trades){if(!trades.length)return '<div class="empty"><strong>No trades yet</strong>Your saved trades will appear here.</div>';return `<div class="table-wrap"><table><thead><tr><th>Date</th><th>Symbol</th><th>Net P&L</th><th></th></tr></thead><tbody>${trades.map(t=>`<tr><td>${safe(t.date)}</td><td>${safe(t.symbol)}</td><td class="${num(t.net)>0?'positive':num(t.net)<0?'negative':''}">${t.net==null?'Open':fmt(t.net)}</td><td><button data-edit-trade="${safe(t.id)}">Edit</button></td></tr>`).join('')}</tbody></table></div>`}
+function guardrailHTML(trades){const s=state.settings,now=today(),week=new Date();week.setDate(week.getDate()-6);const weekStart=ymd(week),dayPnl=trades.filter(t=>t.date===now).reduce((a,t)=>a+num(t.net),0),weekPnl=trades.filter(t=>t.date>=weekStart).reduce((a,t)=>a+num(t.net),0),dayCount=trades.filter(t=>t.date===now).length,m=metrics(trades),items=[['Daily P&L',fmt(dayPnl),s.maxDailyLoss>0&&dayPnl<=-s.maxDailyLoss],['Last 7 days P&L',fmt(weekPnl),s.maxWeeklyLoss>0&&weekPnl<=-s.maxWeeklyLoss],['Trades today',dayCount,s.maxTradesDay>0&&dayCount>s.maxTradesDay],['Max drawdown',fmt(m.maxDD),s.maxDrawdown>0&&m.maxDD>=s.maxDrawdown],['Loss streak',m.lossStreak,s.maxLossStreak>0&&m.lossStreak>=s.maxLossStreak]];return items.map(([k,v,bad])=>`<div class="metricline"><span>${safe(k)}</span><b class="${bad?'negative':''}">${safe(v)} ${bad?'⚠':''}</b></div>`).join('')}
+function drawLineChart(canvas,values,labels,area=false){const ctx=canvas.getContext('2d'),dpr=window.devicePixelRatio||1,w=canvas.clientWidth||500,h=canvas.clientHeight||220;canvas.width=w*dpr;canvas.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);const cs=getComputedStyle(document.documentElement),muted=cs.getPropertyValue('--muted'),border=cs.getPropertyValue('--border'),accent=cs.getPropertyValue('--accent'),green=cs.getPropertyValue('--green');ctx.strokeStyle=border;ctx.fillStyle=muted;ctx.font='11px system-ui';for(let i=0;i<4;i++){let y=15+(h-35)*i/3;ctx.beginPath();ctx.moveTo(38,y);ctx.lineTo(w-8,y);ctx.stroke()}if(!values.length){ctx.fillStyle=muted;ctx.textAlign='center';ctx.fillText('No closed trades to chart yet',w/2,h/2);return}let min=Math.min(...values),max=Math.max(...values);if(min===max){min-=1;max+=1}const px=i=>38+(w-48)*(values.length===1?.5:i/(values.length-1)),py=v=>15+(h-35)*(max-v)/(max-min);ctx.fillStyle=muted;ctx.textAlign='right';ctx.fillText(max.toFixed(0),33,18);ctx.fillText(min.toFixed(0),33,h-20);ctx.strokeStyle=area?green:accent;ctx.lineWidth=2;ctx.beginPath();values.forEach((v,i)=>i?ctx.lineTo(px(i),py(v)):ctx.moveTo(px(i),py(v)));ctx.stroke();if(area&&values.length>1){ctx.lineTo(px(values.length-1),h-20);ctx.lineTo(px(0),h-20);ctx.closePath();ctx.globalAlpha=.10;ctx.fillStyle=green;ctx.fill();ctx.globalAlpha=1}ctx.fillStyle=muted;ctx.textAlign='left';if(labels.length){ctx.fillText(labels[0]||'',38,h-4);if(labels.length>1)ctx.textAlign='right',ctx.fillText(labels[labels.length-1]||'',w-8,h-4)}}
+function renderTrades(){const q=val('tradeSearch').trim().toLowerCase(),strat=val('tradeStrategy'),dir=val('tradeDirection'),result=val('tradeResult'),status=val('tradeStatus'),a=[...state.trades].filter(t=>(!q||[t.id,t.symbol,t.strategy,t.notes,t.entryReason,t.exitReason,t.mistakes].some(v=>String(v||'').toLowerCase().includes(q)))&&(!strat||t.strategy===strat)&&(!dir||t.direction===dir)&&(!status||t.status===status)&&(!result||(t.status==='Closed'&&(result==='win'?t.net>0:result==='loss'?t.net<0:t.net===0))));a.sort((x,y)=>{let av=x[sortKey]??'',bv=y[sortKey]??'';if(sortKey==='net'||sortKey==='qty'||sortKey==='entry')return(num(av)-num(bv))*sortDir;return String(av).localeCompare(String(bv))*sortDir});$('tradeCount').textContent=`${a.length} trade${a.length===1?'':'s'}`;$('tradeRows').innerHTML=a.map(t=>`<tr><td><input type="checkbox" data-select-trade="${safe(t.id)}" ${selectedIds.has(t.id)?'checked':''} style="width:auto"></td><td>${safe(t.date)}</td><td><b>${safe(t.symbol)}</b><div class="note">${safe(t.asset||'')}</div></td><td><span class="pill ${t.direction.toLowerCase()}">${safe(t.direction)}</span></td><td>${fmt(t.entry)} → ${t.exit?fmt(t.exit):'—'}</td><td>${safe(t.qty)}</td><td class="${t.net>0?'positive':t.net<0?'negative':''}">${t.net==null?'—':signed(t.net)}</td><td>${t.r==null?'—':Number(t.r).toFixed(2)+'R'}</td><td>${safe(t.strategy||'—')}</td><td><span class="pill ${t.status.toLowerCase()}">${safe(t.status)}</span></td><td><div class="actions"><button data-edit-trade="${safe(t.id)}">Edit</button><button data-duplicate-trade="${safe(t.id)}">Copy</button><button class="danger" data-delete-trade="${safe(t.id)}">×</button></div></td></tr>`).join('');$('tradeEmpty').classList.toggle('hidden',a.length>0);$('selectAll').checked=!!a.length&&a.every(t=>selectedIds.has(t.id))}
+/* ===== RENDER TASKS & ROUTINES ===== */
+function occRowHTML(o,parent,sel){const isComp=o.status==='completed';return `<tr>${sel?`<td><input type="checkbox" data-sel-occ="${safe(o.id)}" aria-label="Select task" ${selOcc.has(o.id)?'checked':''} style="width:auto"></td>`:''}<td><b>${safe(o.date)}</b></td><td>${safe(parent.title)}<div class="note">${safe((parent.description||'').slice(0,50))}</div></td><td><span class="pill">${safe(parent.category)}</span></td><td><b>${safe(parent.priority)}</b></td><td><span class="pill ${isComp?'long':'short'}">${safe(o.status)}</span></td><td><div class="actions"><button data-toggle-occ="${safe(o.id)}" class="${isComp?'':'primary'}">${isComp?'Mark pending':'Complete'}</button><button data-skip-occ="${safe(o.id)}">Skip</button><button data-edit-task-def="${safe(parent.id)}">Edit Series</button><button class="danger" data-delete-task-def="${safe(parent.id)}" aria-label="Delete task series">×</button></div></td></tr>`}
+async function deleteOccurrences(ids){const set=new Set(ids),snapO=state.taskOccurrences,snapT=state.taskTombstones,gone=snapO.filter(o=>set.has(o.id));state.taskOccurrences=snapO.filter(o=>!set.has(o.id));state.taskTombstones=[...new Set([...snapT,...gone.map(o=>o.taskId+'_'+o.date)])];const ok=await persist();if(!ok){state.taskOccurrences=snapO;state.taskTombstones=snapT;toast('Delete failed. No tasks were removed.');return 0}return gone.length}
+function renderTasks(){
+ ensureTaskOccurrences();
+ const view=state.settings.taskView==='calendar'?'calendar':'list';
+ $('taskViewList').classList.toggle('primary',view==='list');$('taskViewCalendar').classList.toggle('primary',view==='calendar');
+ $('taskViewList').setAttribute('aria-pressed',view==='list');$('taskViewCalendar').setAttribute('aria-pressed',view==='calendar');
+ const dateFilter=val('taskFilterDate'),catFilter=val('taskFilterCat'),statusFilter=val('taskFilterStatus'),prioFilter=val('taskFilterPriority');
+ const taskMap=new Map(state.tasks.map(t=>[t.id,t]));
+ const occs=state.taskOccurrences.filter(o=>{
+ const parent=taskMap.get(o.taskId);
+ if(!parent)return false;
+ if(view==='list'&&dateFilter&&o.date!==dateFilter)return false;
+ if(catFilter&&parent.category!==catFilter)return false;
+ if(statusFilter==='missed'){if(!(o.status==='pending'&&o.date<today()))return false}
+ else if(statusFilter&&o.status!==statusFilter)return false;
+ if(prioFilter&&parent.priority!==prioFilter)return false;
+ return true;
+ }).sort((a,b)=>a.date.localeCompare(b.date));
+ const total=occs.length,completed=occs.filter(o=>o.status==='completed').length,pending=occs.filter(o=>o.status==='pending').length,rate=total>0?(completed/total*100):0;
+ $('taskStats').innerHTML=`
+ <div class="card"><div class="stat-label">Total occurrences</div><div class="stat-value">${total}</div><div class="stat-sub">Filtered view</div></div>
+ <div class="card"><div class="stat-label">Completed</div><div class="stat-value positive">${completed}</div><div class="stat-sub">${pct(rate)} completion rate</div></div>
+ <div class="card"><div class="stat-label">Pending</div><div class="stat-value">${pending}</div><div class="stat-sub">Remaining tasks</div></div>
+ <div class="card"><div class="stat-label">Active Task Definitions</div><div class="stat-value">${state.tasks.length}</div><div class="stat-sub">Routines configured</div></div>`;
+ $('taskSectionTitle').textContent=view==='list'?'Scheduled occurrences':'Task calendar';
+ const container=$('taskContainer'),head='<thead><tr>',cols='<th>Date</th><th>Task Title</th><th>Category</th><th>Priority</th><th>Status</th><th>Actions</th></tr></thead>';
+ if(view==='calendar'){
+ const y=taskCalCursor.getFullYear(),mo=taskCalCursor.getMonth(),by={};
+ occs.forEach(o=>(by[o.date]=by[o.date]||[]).push(o));
+ let g=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="dayname">${d}</div>`).join('');
+ const off=new Date(y,mo,1).getDay(),nd=new Date(y,mo+1,0).getDate();
+ for(let i=0;i<off;i++)g+='<div></div>';
+ for(let d=1;d<=nd;d++){const date=`${y}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`,l=by[date]||[],done=l.filter(o=>o.status==='completed').length;
+ g+=`<div class="day" role="button" tabindex="0" data-task-day="${date}" aria-label="${date}: ${l.length} task${l.length===1?'':'s'}" style="${date===taskSelDate?'outline:2px solid var(--accent)':date===today()?'border-color:var(--accent)':''}"><span class="num">${d}</span>${l.length?`<span class="pnl">${l.length} task${l.length===1?'':'s'}<br>${done}/${l.length} done</span>`:''}</div>`}
+ const day=occs.filter(o=>o.date===taskSelDate);
+ container.innerHTML=`<div class="split" style="justify-content:space-between;margin-bottom:12px"><b>${safe(taskCalCursor.toLocaleDateString(undefined,{month:'long',year:'numeric'}))}</b><div class="actions"><button type="button" data-tcal="-1" aria-label="Previous month">←</button><button type="button" data-tcal="0">Today</button><button type="button" data-tcal="1" aria-label="Next month">→</button></div></div><div class="calendar">${g}</div><div style="margin-top:18px"><div class="card-head"><h3>${safe(taskSelDate)}</h3><button type="button" class="primary" data-tcal-add>Add task</button></div>${day.length?`<div class="table-wrap"><table>${head}${cols}<tbody>${day.map(o=>occRowHTML(o,taskMap.get(o.taskId),false)).join('')}</tbody></table></div>`:'<p class="muted">No tasks on this date.</p>'}</div>`;
+ return;
+ }
+ const visible=new Set(occs.map(o=>o.id));[...selOcc].forEach(id=>{if(!visible.has(id))selOcc.delete(id)});
+ if(!occs.length){container.innerHTML='<div class="empty"><strong>No scheduled task occurrences match your filters</strong><p class="muted">Create a new task or adjust your filters.</p></div>';return}
+ const n=selOcc.size;
+ container.innerHTML=`<div class="sel-bar"><label class="checkrow"><input type="checkbox" id="selAllOcc" ${n&&n===occs.length?'checked':''} style="width:auto"> Select all</label><span class="muted" aria-live="polite">${n} selected</span><button type="button" data-occ-clear ${n?'':'disabled'}>Deselect all</button><button type="button" class="danger" data-occ-delete ${n?'':'disabled'}>Delete selected</button></div><div class="table-wrap"><table>${head}<th style="width:36px"></th>${cols}<tbody>${occs.map(o=>occRowHTML(o,taskMap.get(o.taskId),true)).join('')}</tbody></table></div>`;
+}
+function openTaskModal(task=null){
+ $('taskForm').reset();
+ setval('taskStartDate',today());
+ setval('taskRepetitions',10);
+ setval('taskInterval',1);
+ if(task){
+ setval('taskId',task.id);
+ setval('taskTitle',task.title);
+ setval('taskCategory',task.category);
+ setval('taskPriority',task.priority);
+ setval('taskStartDate',task.startDate);
+ setval('taskEndDate',task.endDate);
+ setval('taskRecurrence',task.recurrence);
+ setval('taskInterval',task.interval||1);
+ setval('taskRepetitions',task.repetitions||10);
+ setval('taskDescription',task.description);
+ $('taskModalTitle').textContent='Edit task series';
+ }else{
+ setval('taskId','');
+ $('taskModalTitle').textContent='Create custom task';
+ }
+ showModal('taskModal');
+}
+function loadTaskTemplates(){
+ const templates=[
+ {title:'Check economic calendar & news',category:'Pre-market preparation',priority:'High',recurrence:'daily',repetitions:30,description:'Check high-impact USD/INR or global news releases before session.'},
+ {title:'Analyze charts & market structure',category:'Technical analysis',priority:'High',recurrence:'weekday',repetitions:20,description:'Review daily & 1h support/resistance levels.'},
+ {title:'Risk limits check',category:'Risk management',priority:'Critical',recurrence:'daily',repetitions:30,description:'Verify max daily loss limits and maximum open risk.'},
+ {title:'Record and review completed trades',category:'Trading journal review',priority:'High',recurrence:'daily',repetitions:30,description:'Log all entries, exits, R-multiples, and lessons learned.'},
+ {title:'Weekly strategy backtesting',category:'Learning and backtesting',priority:'Medium',recurrence:'weekly',repetitions:12,description:'Backtest setup win rates on historical weekend data.'}
+ ];
+ let added=0;
+ templates.forEach(tpl=>{
+ const id=uid('TSK');
+ state.tasks.push({id,...tpl,startDate:today(),endDate:'',interval:1});
+ added++;
+ });
+ ensureTaskOccurrences();
+ persist().then(()=>{renderTasks();toast(`Loaded ${added} professional trading task templates.`)})
+}
+function renderAnalytics(){const m=metrics(state.trades),c=m.closed;$('analyticsStats').innerHTML=[statCard('Net P&L',signed(m.net),`${c.length} closed`,m.net>=0?'positive':'negative'),statCard('Win rate',pct(m.winRate),`${m.wins.length} winning trades`),statCard('Profit factor',m.profitFactor===Infinity?'∞':m.profitFactor.toFixed(2),'Gross wins / gross losses'),statCard('Max drawdown',fmt(m.maxDD),'Realized equity peak-to-trough','negative')].join('');const monthly=groupSum(c,t=>(t.date||'').slice(0,7)||'Unknown');const entries=Object.entries(monthly).sort((a,b)=>a[0].localeCompare(b[0]));drawBarChart($('monthlyChart'),entries.map(x=>x[1]),entries.map(x=>x[0]));const ordered=[...c].sort((a,b)=>tradeDateTime(a).localeCompare(tradeDateTime(b)));let equity=num(state.settings.startBalance),peak=equity;const dd=ordered.map(t=>{equity+=num(t.net);peak=Math.max(peak,equity);return peak-equity});drawLineChart($('drawdownChart'),dd,ordered.map(t=>t.date));renderBars('strategyAnalytics',groupSum(c,t=>t.strategy||'Unassigned'));renderBars('symbolAnalytics',groupSum(c,t=>t.symbol||'Unknown'));const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],wd={};c.forEach(t=>{const d=new Date((t.date||today())+'T12:00:00').getDay();wd[days[d]]=(wd[days[d]]||0)+num(t.net)});renderBars('weekdayAnalytics',wd);const side={Long:c.filter(t=>t.direction==='Long').reduce((a,t)=>a+num(t.net),0),Short:c.filter(t=>t.direction==='Short').reduce((a,t)=>a+num(t.net),0)};$('sideAnalytics').innerHTML=Object.entries(side).map(([k,v])=>`<div class="metricline"><span>${k}</span><b class="${v>=0?'positive':'negative'}">${fmt(v)}</b></div>`).join('')}
+function drawBarChart(canvas,values,labels){const ctx=canvas.getContext('2d'),dpr=devicePixelRatio||1,w=canvas.clientWidth||500,h=canvas.clientHeight||220;canvas.width=w*dpr;canvas.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);const css=getComputedStyle(document.documentElement),muted=css.getPropertyValue('--muted'),border=css.getPropertyValue('--border'),pos=css.getPropertyValue('--green'),neg=css.getPropertyValue('--red');if(!values.length){ctx.fillStyle=muted;ctx.textAlign='center';ctx.fillText('No closed trades yet',w/2,h/2);return}const top=14,bot=h-26,hi=Math.max(0,...values),lo=Math.min(0,...values),range=(hi-lo)||1,zero=top+(bot-top)*hi/range,slot=(w-44)/values.length,bw=Math.min(40,Math.max(3,slot*.6)),step=Math.max(1,Math.ceil(36/slot));ctx.strokeStyle=border;ctx.beginPath();ctx.moveTo(38,zero);ctx.lineTo(w-6,zero);ctx.stroke();ctx.font='10px system-ui';ctx.fillStyle=muted;ctx.textAlign='right';ctx.fillText(hi.toFixed(0),34,top+8);if(lo<0)ctx.fillText(lo.toFixed(0),34,bot);values.forEach((v,i)=>{const bh=Math.abs(v)/range*(bot-top),x=40+i*slot+(slot-bw)/2,y=v>=0?zero-bh:zero;ctx.fillStyle=v<0?neg:pos;ctx.fillRect(x,y,bw,Math.max(1,bh));if(i%step===0){ctx.fillStyle=muted;ctx.textAlign='center';const l=labels[i]||'';ctx.fillText(l.length>8?l.slice(0,8):l,x+bw/2,h-8)}})}
+function renderBars(id,obj){const entries=Object.entries(obj).sort((a,b)=>b[1]-a[1]),max=Math.max(1,...entries.map(x=>Math.abs(x[1])));$(id).innerHTML=entries.length?entries.map(([k,v])=>`<div class="barrow"><span title="${safe(k)}">${safe(k.length>15?k.slice(0,15)+'…':k)}</span><div class="bartrack"><div class="barfill" style="width:${Math.abs(v)/max*100}%;background:${v<0?'var(--red)':'var(--accent)'}"></div></div><b class="${v>=0?'positive':'negative'}">${fmt(v)}</b></div>`).join(''):'<div class="empty">No data yet.</div>'}
+function renderStrategies(){const c=closedTrades();$('strategyList').innerHTML=state.strategies.map(s=>{const a=c.filter(t=>t.strategy===s.name),m=metrics(a);return `<div class="card"><div class="card-head"><div><h3>${safe(s.name)}</h3><small class="muted">${safe(s.timeframe||'No timeframe specified')}</small></div><div class="actions"><button data-edit-strategy="${safe(s.id)}">Edit</button><button class="danger" data-delete-strategy="${safe(s.id)}">Delete</button></div></div><p class="muted">${safe(s.description||'No description yet.')}</p><div class="metricline"><span>Trades · Win rate</span><b>${a.length} · ${pct(m.winRate)}</b></div><div class="metricline"><span>Net P&L</span><b class="${m.net>=0?'positive':'negative'}">${fmt(m.net)}</b></div><div class="metricline"><span>Profit factor · Expectancy</span><b>${m.profitFactor===Infinity?'∞':m.profitFactor.toFixed(2)} · ${fmt(m.expectancy)}</b></div><div class="note" style="margin-top:12px">${safe(s.rules||'Add entry and exit rules to this strategy.')}</div></div>`}).join('');$('strategyEmpty').classList.toggle('hidden',state.strategies.length>0)}
+function renderPlans(){$('planList').innerHTML=state.plans.map(p=>{const distance=Math.abs(num(p.entry)-num(p.stop)),reward=Math.abs(num(p.target)-num(p.entry)),rr=distance?reward/distance:null;return `<div class="card"><div class="card-head"><div><h3>${safe(p.symbol)} <span class="pill ${p.direction.toLowerCase()}">${safe(p.direction)}</span></h3><small class="muted">Manual plan · ${safe(p.status)}</small></div><div class="actions"><button data-edit-plan="${safe(p.id)}">Edit</button><button data-convert-plan="${safe(p.id)}">Journal</button><button class="danger" data-delete-plan="${safe(p.id)}">×</button></div></div><div class="metricline"><span>Entry / Stop / Target</span><b>${safe(p.entry||'—')} / ${safe(p.stop||'—')} / ${safe(p.target||'—')}</b></div><div class="metricline"><span>Reward : Risk</span><b>${rr===null?'—':rr.toFixed(2)+' : 1'}</b></div><div class="note">${safe(p.notes||'No notes')}</div></div>`}).join('');$('planEmpty').classList.toggle('hidden',state.plans.length>0)}
+function renderCalendar(){
+ const y=calendarCursor.getFullYear(),mo=calendarCursor.getMonth();
+ $('calendarTitle').textContent=calendarCursor.toLocaleDateString(undefined,{month:'long',year:'numeric'});
+ const c=closedTrades(),daily=groupSum(c,t=>t.date);
+ ensureTaskOccurrences();
+ const occByDate={};
+ state.taskOccurrences.forEach(o=>{
+ if(!occByDate[o.date])occByDate[o.date]=[];
+ occByDate[o.date].push(o);
+ });
+ let html=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d=>`<div class="dayname">${d}</div>`).join('');
+ const offset=new Date(y,mo,1).getDay(),days=new Date(y,mo+1,0).getDate();
+ for(let i=0;i<offset;i++)html+='<div></div>';
+ for(let d=1;d<=days;d++){
+ const date=`${y}-${String(mo+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+ const v=daily[date];
+ const dayTasks=occByDate[date]||[];
+ const pendingTasks=dayTasks.filter(t=>t.status==='pending').length;
+ const cls=v>0?'pos':v<0?'neg':'';
+ html+=`<div class="day ${cls}" data-calendar-date="${date}" style="${date===selectedDate?'outline:2px solid var(--accent)':''}"><span class="num">${d} ${pendingTasks>0?`<span style="color:var(--accent)">•${pendingTasks}t</span>`:''}</span><span class="pnl ${v>0?'positive':v<0?'negative':''}">${v===undefined?'':fmt(v)}</span></div>`;
+ }
+ $('calendarGrid').innerHTML=html;
+ loadReviewForm();
+}
+function loadReviewForm(){
+ const r=state.reviews[selectedDate]||{};
+ $('selectedDateTitle').textContent='Daily review & tasks · '+selectedDate;
+ setval('reviewGoal',r.goal);
+ setval('reviewPlan',r.plan);
+ setval('reviewScore',r.score);
+ setval('reviewPre',r.pre);
+ setval('reviewNotes',r.notes);
+ ensureTaskOccurrences();
+ const taskMap=new Map(state.tasks.map(t=>[t.id,t]));
+ const dayOccs=state.taskOccurrences.filter(o=>o.date===selectedDate);
+ const listEl=$('calendarDayTasksList');
+ if(!dayOccs.length){
+ listEl.innerHTML='<p class="muted" style="margin-top:10px">No tasks scheduled for this date.</p>';
+ return;
+ }
+ listEl.innerHTML=`<div style="margin-top:10px;display:grid;gap:8px">`+dayOccs.map(o=>{
+ const parent=taskMap.get(o.taskId)||{title:'Task',category:'General'};
+ const isComp=o.status==='completed';
+ return `<div style="display:flex;justify-content:space-between;align-items:center;background:var(--panel2);padding:10px;border-radius:8px">
+ <label class="checkrow" style="margin:0"><input type="checkbox" data-day-occ-toggle="${safe(o.id)}" ${isComp?'checked':''}><span style="${isComp?'text-decoration:line-through;opacity:0.6':''}">${safe(parent.title)} (${safe(parent.category)})</span></label>
+ <button data-delete-occ="${safe(o.id)}" style="padding:4px 8px;font-size:11px">×</button>
+ </div>`;
+ }).join('')+`</div>`;
+}
+function renderReviews(){const list=Object.entries(state.reviews).sort((a,b)=>b[0].localeCompare(a[0]));$('recentReviews').innerHTML=list.length?list.slice(0,8).map(([date,r])=>`<div class="metricline"><div><b>${safe(date)}</b><div class="note">${safe((r.notes||r.goal||'No note').slice(0,90))}</div></div><button data-open-review="${safe(date)}">Open</button></div>`).join(''):'<div class="empty">No daily reflections saved yet.</div>';const trades=closedTrades(),bad=trades.filter(t=>t.ruleFollowed==='No').length,partial=trades.filter(t=>t.ruleFollowed==='Partially').length,avgConf=trades.filter(t=>num(t.confidence)>0),scores=list.filter(x=>num(x[1].score)>0).map(x=>num(x[1].score));$('psychologyInsights').innerHTML=`<div class="metricline"><span>Trades marked as rule violations</span><b>${bad}</b></div><div class="metricline"><span>Partially followed plan</span><b>${partial}</b></div><div class="metricline"><span>Average daily discipline score</span><b>${scores.length?(scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1)+'/10':'—'}</b></div><div class="metricline"><span>Trades with confidence logged</span><b>${avgConf.length}</b></div><p class="note">These are descriptive summaries, not proof that a behavior caused a trading result.</p>`}
+function applyTheme(){
+ const s=state.settings; s.siteName='TradeLedge';s.browserTitle='TradeLedge — Trading Journal';
+ let theme=s.theme;
+ if(theme==='system')theme=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';
+ const light=theme==='light',root=document.documentElement;
+ const vars=light?{'--bg':s.bgColor&&s.bgColor!=='#0b0c0f'?s.bgColor:'#f4f6fb','--panel':s.cardColor&&s.cardColor!=='#121418'?s.cardColor:'#ffffff','--panel2':s.sidebarColor&&s.sidebarColor!=='#181b21'?s.sidebarColor:'#eef1f8','--text':s.textColor&&s.textColor!=='#ececee'?s.textColor:'#172033','--muted':s.mutedColor&&s.mutedColor!=='#9096a2'?s.mutedColor:'#65718a','--border':s.borderColor&&s.borderColor!=='#262a32'?s.borderColor:'#dce2ed'}:{'--bg':s.bgColor||'#0b0c0f','--panel':s.cardColor||'#121418','--panel2':s.sidebarColor||'#181b21','--text':s.textColor||'#ececee','--muted':s.mutedColor||'#9096a2','--border':s.borderColor||'#262a32'};
+ Object.entries(vars).forEach(([k,v])=>root.style.setProperty(k,v));
+ root.style.setProperty('--accent',s.accent);
+ root.style.setProperty('--green',s.positive);
+ root.style.setProperty('--red',s.negative);
+ root.style.setProperty('--radius',(s.radius||12)+'px');
+ root.style.setProperty('--space',s.density==='compact'?'10px':'16px');
+ document.body.style.fontSize=s.density==='compact'?'13px':'14px';
+ // Apply Website Identity Management from Admin Panel
+ $('brandName').textContent='TradeLedge';
+ paintLogo($('brandLogoBox'),s);
+ document.title='TradeLedge — Trading Journal';
+ $('welcomeTitle').textContent=s.welcome||'Your trading, in focus.';
+ $('dashSubText').textContent='Every metric is calculated from your saved closed trades.';
+ $('heroName').textContent='TradeLedge';
+ paintLogo($('heroLogo'),s);
+ $('heroSub').textContent=s.siteSubtitle||'';
+ $('footerText').textContent=s.footer||'';
+}
+function renderAll(){
+ applyTheme();
+ populateStrategies();
+ renderDashboard();
+ renderTrades();
+ renderTasks();
+ renderAnalytics();
+ renderStrategies();
+ renderPlans();
+ renderCalendar();
+ renderReviews();
+ renderMistakes();
+ renderStudy();
+ fillSettings();
+ updateStorageInfo();
+}
+function fillSettings(){
+ const s=state.settings;
+ for(const [id,key] of Object.entries({
+ themeSelect:'theme',accentColor:'accent',positiveColor:'positive',negativeColor:'negative',bgColor:'bgColor',cardColor:'cardColor',sidebarColor:'sidebarColor',textColor:'textColor',mutedColor:'mutedColor',borderColor:'borderColor',densitySelect:'density',radiusSelect:'radius',
+ siteName:'siteName',siteSubtitle:'siteSubtitle',browserTitleInput:'browserTitle',brandLogoInitials:'brandLogoInitials',welcomeMessage:'welcome',footerNote:'footer',
+ startBalance:'startBalance',currency:'currency',defaultMultiplier:'defaultMultiplier',maxDailyLoss:'maxDailyLoss',maxWeeklyLoss:'maxWeeklyLoss',maxRiskPct:'maxRiskPct',maxTradesDay:'maxTradesDay',maxDrawdown:'maxDrawdown',maxLossStreak:'maxLossStreak'
+ }))setval(id,s[key]);
+ $('showEquity').checked=!!s.showEquity;
+ $('showRecent').checked=!!s.showRecent;
+ $('calcEquity').value=s.startBalance;
+ paintLogo($('logoPreview'),s);
+}
+function updateStorageInfo(){let bytes=0;try{bytes=new Blob([JSON.stringify(state)]).size}catch{}$('storageDetail').textContent=`${(bytes/1024).toFixed(1)} KB of application data estimated. Stored in ${db?'IndexedDB':'browser local storage'} on this device.`}
+function navigate(page){
+ if(page==='settings'&&!adminUnlocked){setval('adminLoginUser',state.username);setval('adminLoginPass','');$('adminLoginError').classList.add('hidden');showModal('adminLoginModal');return}
+ document.querySelectorAll('.section').forEach(s=>s.classList.toggle('active',s.id===page));
+ document.querySelectorAll('#mainNav [data-page]').forEach(b=>{const on=b.dataset.page===page;b.classList.toggle('active',on);on?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current')});
+ const btn=document.querySelector(`#mainNav [data-page="${page}"]`);
+ document.querySelectorAll('#mobileNav [data-mpage]').forEach(b=>b.classList.toggle('active',b.dataset.mpage===page));
+ $('pageTitle').textContent=btn?btn.querySelector('span').textContent:page.charAt(0).toUpperCase()+page.slice(1);
+ $('sidebar').classList.remove('open');
+ if(page==='dashboard')renderDashboard();
+ if(page==='mistakeAnalysis')renderMistakes();
+ if(page==='study')renderStudy();
+ if(page==='account'){pendImg=undefined;renderAccount()}
+ if(page==='analytics')renderAnalytics();
+ if(page==='calendar')renderCalendar();
+ if(page==='trades')renderTrades();
+ if(page==='tasks')renderTasks();
+ if(page==='risk')renderRisk();
+}
+function showModal(id){$(id).classList.add('show');document.body.style.overflow='hidden'}
+function closeModal(id){$(id).classList.remove('show');if(!document.querySelector('.modal-backdrop.show'))document.body.style.overflow=''}
+function openTrade(t=null,duplicate=false,statusOverride=null){
+ if(!t&&state.settings.mistakeReminderEnabled){const n=Number(state.settings.mistakeReminderThreshold)||3, recent=state.mistakes.filter(m=>{const dt=(Date.now()-new Date((m.date||'')+'T00:00:00').getTime())/86400000;return dt>=0&&dt<=30&&severityOrder[m.severity]>=severityOrder[state.settings.mistakeReminderSeverity||'Moderate']});const counts=recent.reduce((o,m)=>(o[m.category]=(o[m.category]||0)+1,o),{});const hit=Object.entries(counts).sort((a,b)=>b[1]-a[1]).find(x=>x[1]>=n);const key=today()+'|'+(hit?.[0]||''),last=Number(state.settings.mistakeReminderDismissed?.[key]||0);if(hit&&Date.now()-last>86400000){const action=recent.find(m=>m.category===hit[0]&&m.action)?.action;toast(`Reminder: ${hit[1]} ${hit[0]} records in 30 days.${action?' Next time: '+action:''}`);state.settings.mistakeReminderDismissed={...(state.settings.mistakeReminderDismissed||{}),[key]:Date.now()};persist()}}
+
+ $('tradeForm').reset();
+ $('tradeId').value='';
+ setval('tradeDate',today());
+ setval('multiplier',state.settings.defaultMultiplier);
+ setval('entryFees',0);
+ setval('exitFees',0);
+ setval('otherCosts',0);
+ populateStrategies();
+ if(t){
+ const fields={tradeId:'id',tradeDate:'date',tradeSymbolInput:'symbol',tradeAsset:'asset',tradeDirectionInput:'direction',tradeStatusInput:'status',tradeStrategyInput:'strategy',entryPrice:'entry',exitPrice:'exit',quantity:'qty',multiplier:'multiplier',stopLoss:'stop',targetPrice:'target',entryFees:'entryFees',exitFees:'exitFees',otherCosts:'otherCosts',entryTime:'entryTime',exitTime:'exitTime',timeframe:'timeframe',session:'session',confidence:'confidence',execution:'execution',emotion:'emotion',ruleFollowed:'ruleFollowed',entryReason:'entryReason',exitReason:'exitReason',mistakes:'mistakes',tradeNotes:'notes'};
+ Object.entries(fields).forEach(([id,k])=>setval(id,t[k]));
+ $('tradeMistakeSeverity').value=t.mistakeSeverity||'';[...$('tradeMistakeCats').options].forEach(o=>o.selected=(t.mistakeCategories||[]).includes(o.value));
+ if(duplicate)setval('tradeId','');
+ if(statusOverride)setval('tradeStatusInput',statusOverride);
+ }
+ $('tradeModalTitle').textContent=t&&!duplicate?'Edit trade':duplicate?'Duplicate trade':'Record trade';
+ updatePreview();
+ showModal('tradeModal');
+}
+function readTrade(){
+ const t={id:val('tradeId')||uid('TRD'),date:val('tradeDate'),symbol:val('tradeSymbolInput').trim().toUpperCase(),asset:val('tradeAsset'),direction:val('tradeDirectionInput'),status:val('tradeStatusInput'),strategy:val('tradeStrategyInput'),entry:num(val('entryPrice')),exit:num(val('exitPrice')),qty:num(val('quantity')),multiplier:num(val('multiplier'))||1,stop:num(val('stopLoss')),target:num(val('targetPrice')),entryFees:num(val('entryFees')),exitFees:num(val('exitFees')),otherCosts:num(val('otherCosts')),entryTime:val('entryTime'),exitTime:val('exitTime'),timeframe:val('timeframe'),session:val('session'),confidence:val('confidence'),execution:val('execution'),emotion:val('emotion'),ruleFollowed:val('ruleFollowed'),entryReason:val('entryReason').trim(),exitReason:val('exitReason').trim(),mistakes:val('mistakes').trim(),mistakeCategories:[...$('tradeMistakeCats').selectedOptions].map(o=>o.value),mistakeSeverity:val('tradeMistakeSeverity'),notes:val('tradeNotes').trim()};
+ return hydrateTrade(t);
+}
+function updatePreview(){
+ if(!$('entryPrice'))return;
+ const t={direction:val('tradeDirectionInput'),entry:num(val('entryPrice')),exit:num(val('exitPrice')),qty:num(val('quantity')),multiplier:num(val('multiplier'))||1,stop:num(val('stopLoss')),entryFees:num(val('entryFees')),exitFees:num(val('exitFees')),otherCosts:num(val('otherCosts'))};
+ const c=tradeCalc(t),closed=val('tradeStatusInput')==='Closed'&&t.exit>0;
+ $('previewGross').textContent=closed?fmt(c.gross):'—';
+ $('previewNet').textContent=closed?fmt(c.net):'—';
+ $('previewR').textContent=closed&&c.r!==null?c.r.toFixed(2)+'R':'—';
+ $('previewNet').className=closed?(c.net>0?'positive':c.net<0?'negative':''):'';
+}
+function renderRisk(){const s=state.settings;$('calcEquity').value=$('calcEquity').value||s.startBalance;$('calcRiskPct').value=$('calcRiskPct').value||s.maxRiskPct;$('calcMult').value=$('calcMult').value||s.defaultMultiplier;const t=closedTrades(),m=metrics(t);$('riskWarnings').innerHTML=guardrailHTML(t)+`<div class="metricline"><span>Maximum permitted risk / trade</span><b>${pct(s.maxRiskPct)}</b></div><div class="metricline"><span>Max drawdown setting</span><b>${fmt(s.maxDrawdown)}</b></div><p class="note">Guardrails are calculated from journaled trades. They cannot block broker orders.</p>`;calcPosition()}
+function calcPosition(){const equity=num(val('calcEquity')),riskPct=num(val('calcRiskPct')),entry=num(val('calcEntry')),stop=num(val('calcStop')),mult=num(val('calcMult'))||1,costs=num(val('calcCosts')),riskBudget=equity*riskPct/100,distance=Math.abs(entry-stop)*mult,qty=distance>0?Math.max(0,Math.floor((riskBudget-costs)/distance*10000)/10000):0;$('positionResult').textContent=distance>0&&equity>0?`${qty} units · ${fmt(qty*distance+costs)} estimated risk`:'Enter valid entry and stop prices';$('positionNote').textContent=distance>0?`Risk budget ${fmt(riskBudget)} · Stop distance ${fmt(Math.abs(entry-stop))} × multiplier ${mult}. Quantity is rounded down to 4 decimals; actual broker lot sizes may differ.`:'Suggested size = (equity × risk %) ÷ (stop distance × multiplier), less estimated costs.'}
+function openStrategy(s=null){$('strategyForm').reset();setval('strategyId',s?.id||'');setval('strategyName',s?.name||'');setval('strategyDescription',s?.description||'');setval('strategyRules',s?.rules||'');setval('strategyTimeframe',s?.timeframe||'');$('strategyModalTitle').textContent=s?'Edit strategy':'New strategy';showModal('strategyModal')}
+function openPlan(p=null){$('planForm').reset();populateStrategies();setval('planId',p?.id||'');setval('planSymbol',p?.symbol||'');setval('planDirection',p?.direction||'Long');setval('planEntry',p?.entry||'');setval('planStop',p?.stop||'');setval('planTarget',p?.target||'');setval('planStatus',p?.status||'Planned');setval('planStrategy',p?.strategy||'');setval('planNotes',p?.notes||'');$('planModalTitle').textContent=p?'Edit trade plan':'New trade plan';showModal('planModal')}
+function download(filename,content,type='application/json'){const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),500)}
+function exportBackup(){download('tradeledge-backup-'+today()+'.json',JSON.stringify({app:'TradeLedge',version:2,exportedAt:new Date().toISOString(),data:state},null,2))}
+function csvEscape(v){const s=String(v??'');return /[",\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}
+function exportCSV(){const keys=['id','date','symbol','asset','direction','status','strategy','entry','exit','qty','multiplier','stop','target','gross','costs','net','risk','r','entryFees','exitFees','otherCosts','entryTime','exitTime','timeframe','session','confidence','execution','emotion','ruleFollowed','entryReason','exitReason','mistakes','notes'],rows=[keys.join(','),...state.trades.map(t=>keys.map(k=>csvEscape(t[k])).join(','))];download('tradeledge-trades-'+today()+'.csv',rows.join('\r\n'),'text/csv;charset=utf-8')}
+function parseCSV(text){const rows=[];let row=[],field='',quoted=false;for(let i=0;i<text.length;i++){const c=text[i];if(quoted){if(c==='"'&&text[i+1]==='"'){field+='"';i++}else if(c==='"')quoted=false;else field+=c}else if(c==='"')quoted=true;else if(c===','){row.push(field);field=''}else if(c==='\n'){row.push(field);rows.push(row);row=[];field=''}else if(c!=='\r')field+=c}if(field.length||row.length){row.push(field);rows.push(row)}if(!rows.length)return[];const headers=rows.shift().map(x=>x.trim());return rows.filter(r=>r.some(x=>x!=='')).map(r=>Object.fromEntries(headers.map((h,i)=>[h,r[i]??''])))}
+async function importFile(file){
+ if(!file)return;
+ try{
+ const text=await file.text();
+ if(file.name.toLowerCase().endsWith('.csv')){
+ const rows=parseCSV(text);
+ if(!rows.length)throw Error('CSV contains no rows.');
+ if(!confirm(`Import ${rows.length} CSV rows? Existing trades will be kept.`))return;
+ let added=0;
+ rows.forEach(r=>{if(!r.symbol||!r.entry||!r.qty)return;const t=hydrateTrade({...r,entry:num(r.entry),exit:num(r.exit),qty:num(r.qty),multiplier:num(r.multiplier)||1});if(!state.trades.some(x=>x.id===t.id)){state.trades.push(t);added++}});
+ await persist();renderAll();toast(`Imported ${added} CSV trades.`);
+ return;
+ }
+ const obj=JSON.parse(text),payload=obj.data||obj;
+ if(!payload||!Array.isArray(payload.trades))throw Error('Invalid TradeLedge JSON backup.');
+ if(!confirm(`Import backup data? Existing data will be preserved where IDs match.`))return;
+ let added=0;
+ payload.trades.forEach(raw=>{const t=hydrateTrade(raw);if(!state.trades.some(x=>x.id===t.id)){state.trades.push(t);added++}});
+ if(Array.isArray(payload.tasks))payload.tasks.forEach(tsk=>{if(!state.tasks.some(x=>x.id===tsk.id))state.tasks.push(tsk)});
+ if(Array.isArray(payload.taskOccurrences))payload.taskOccurrences.forEach(occ=>{if(!state.taskOccurrences.some(x=>x.id===occ.id))state.taskOccurrences.push(occ)});
+ if(Array.isArray(payload.mistakes))payload.mistakes.forEach(m=>{if(m&&m.id&&!state.mistakes.some(x=>x.id===m.id))state.mistakes.push(m)});
+ if(Array.isArray(payload.taskTombstones))state.taskTombstones=[...new Set([...state.taskTombstones,...payload.taskTombstones])];
+ if(Array.isArray(payload.study?.history))payload.study.history.forEach(h=>{if(h&&h.id&&!state.study.history.some(x=>x.id===h.id))state.study.history.push(h)});
+ syncAllTradeMistakes();await persist();renderAll();toast('Backup successfully restored.');
+ }catch(e){toast('Import failed: '+e.message)}finally{$('importFile').value=''}}
+function saveTrade(e,statusOverride=null){
+ e?.preventDefault();
+ const t=readTrade();
+ if(statusOverride)t.status=statusOverride;
+ if(!t.symbol||!t.date||t.entry<0||t.qty<=0||t.multiplier<=0){toast('Please enter a symbol, date, valid entry, positive quantity, and multiplier.');return}
+ if(t.status==='Closed'&&t.exit<=0){toast('A closed trade needs a valid exit price.');return}
+ if(t.status!=='Closed'){t.net=null;t.gross=null;t.r=null}else Object.assign(t,tradeCalc(t),{costs:tradeCalc(t).costs});
+ const previous=state.trades.find(x=>x.id===t.id);
+ const beforeTrades=state.trades.slice(),beforeMistakes=state.mistakes.slice();const i=state.trades.findIndex(x=>x.id===t.id);
+ if(i>=0)state.trades[i]=t;else state.trades.unshift(t);
+ syncTradeMistakes(t,previous);
+ persist().then(ok=>{if(!ok){state.trades=beforeTrades;state.mistakes=beforeMistakes;return}renderAll();closeModal('tradeModal');toast('Trade saved.')})
+}
+function saveCredentials(e){e.preventDefault();if(val('currentPassword')!==state.password){toast('Current password is incorrect.');return}state.username=val('newUsername').trim();state.password=val('newPassword');persist().then(()=>{closeModal('credentialsModal');$('credentialsForm').reset();toast('Local demo credentials updated.')})}
+function fillCredentials(){setval('newUsername',state.username);$('credentialsForm').reset();setval('newUsername',state.username);showModal('credentialsModal')}
+function saveTradingSettings(){
+ const s=state.settings;
+ s.startBalance=Math.max(0,num(val('startBalance')));
+ s.currency=(val('currency').trim()||'INR').toUpperCase().slice(0,3);
+ s.defaultMultiplier=Math.max(.000001,num(val('defaultMultiplier'))||1);
+ s.maxDailyLoss=Math.max(0,num(val('maxDailyLoss')));
+ s.maxWeeklyLoss=Math.max(0,num(val('maxWeeklyLoss')));
+ s.maxRiskPct=Math.min(100,Math.max(0,num(val('maxRiskPct'))));
+ s.maxTradesDay=Math.max(0,Math.floor(num(val('maxTradesDay'))));
+ s.maxDrawdown=Math.max(0,num(val('maxDrawdown')));
+ s.maxLossStreak=Math.max(0,Math.floor(num(val('maxLossStreak'))));
+ persist().then(()=>{renderAll();toast('Trading settings saved.')})
+}
+function updateStorageEstimate(){updateStorageInfo();toast('Storage estimate refreshed.')}
+function resetData(){if(!confirm('Permanently delete all trades, tasks, reviews, mistakes and study history? Export a backup first.'))return;state.trades=[];state.strategies=[];state.plans=[];state.reviews={};state.tasks=[];state.taskOccurrences=[];state.taskTombstones=[];state.mistakes=[];state.study={active:null,history:[]};studyNote='';persist().then(()=>{renderAll();toast('Journal and task records reset.')})}
+const PKEY='tradeledger_profile_v1';let prof={name:'',image:'',motion:'auto',quiet:false},pendImg=null;
+try{Object.assign(prof,JSON.parse(localStorage.getItem(PKEY)||'{}'))}catch{}
+function saveProf(){try{localStorage.setItem(PKEY,JSON.stringify(prof));return true}catch{toast('Could not save profile.');return false}}
+function toastImpl(msg){const type=/fail|incorrect|could not|invalid|error|expired|please|select trades|must/i.test(msg)?'err':'ok';if(type==='ok'&&prof.quiet)return;const box=$('toasts');if([...box.children].some(c=>c.dataset.m===msg))return;if(box.children.length>3)box.firstChild.remove();const el=document.createElement('div');el.className='tst '+type;el.dataset.m=msg;el.setAttribute('role',type==='err'?'alert':'status');el.insertAdjacentHTML('beforeend',type==='err'?'<svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/></svg>':'<svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg>');const sp=document.createElement('span');sp.textContent=msg;const x=document.createElement('button');x.textContent='✕';x.setAttribute('aria-label','Dismiss');el.append(sp,x);box.append(el);requestAnimationFrame(()=>el.classList.add('in'));const rm=()=>{el.classList.remove('in');setTimeout(()=>el.remove(),230)};x.onclick=rm;setTimeout(rm,type==='err'?5500:3000)}
+function paintLogo(el,s){if(!el)return;el.textContent='';el.style.overflow='hidden';if(s.logoImage&&/^data:image\//.test(s.logoImage)){const i=document.createElement('img');i.alt='';i.src=s.logoImage;i.style.cssText='width:100%;height:100%;object-fit:cover';el.append(i);el.style.background='transparent'}else{el.style.background='';el.textContent=s.brandLogoInitials||(s.siteName||'TL').slice(0,2).toUpperCase()}}
+function resizeImage(file,max,cb){const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(im.width*k));c.height=Math.max(1,Math.round(im.height*k));c.getContext('2d').drawImage(im,0,0,c.width,c.height);cb(c.toDataURL('image/png'))};im.onerror=()=>toast('Invalid image file.');im.src=r.result};r.readAsDataURL(file)}
+function renderAccount(){if(!$('acName'))return;paintAvatar($('acAvatar'),pendImg===undefined||pendImg===null?prof.image:pendImg);setval('acName',prof.name||state.username||'');setval('acMotion',prof.motion);$('acQuiet').checked=!!prof.quiet;$('acBadge').textContent=adminUnlocked?'Admin · unlocked':'Local journal';$('acBadge').classList.toggle('on',adminUnlocked);$('acAdminState').textContent=adminUnlocked?'Unlocked':'Locked'}
+
+
+const severityOrder={Low:1,Moderate:2,High:3,Critical:4};
+function syncTradeMistakes(t,previous){
+ const original=state.mistakes.filter(m=>m.source!=='trade'||m.tradeId!==t.id);
+ const cats=[...new Set([...(Array.isArray(t.mistakeCategories)?t.mistakeCategories:[])])];
+ if(!cats.length&&String(t.mistakes||'').trim())cats.push('Other');
+ if(t.ruleFollowed==='No')cats.push('Ignoring the trading plan');else if(t.ruleFollowed==='Partially'&&!cats.length)cats.push('Strategy deviation');
+ const clean=[...new Set(cats)];
+ const created=clean.map(cat=>{const slug=encodeURIComponent(cat.toLowerCase().replace(/\s+/g,'-'));const old=state.mistakes.find(m=>m.source==='trade'&&m.tradeId===t.id&&m.category===cat);return {id:`TRD-MST-${t.id}-${slug}`,source:'trade',tradeId:t.id,date:t.date,category:cat,what:t.mistakes||`Recorded on ${t.symbol} ${t.direction} trade`,why:'',action:old?.action||'',lesson:old?.lesson||'',impact:null,severity:t.mistakeSeverity||'',createdAt:old?.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()}});
+ state.mistakes=[...created,...original];
+}
+function syncAllTradeMistakes(){state.trades.forEach(t=>{if(Array.isArray(t.mistakeCategories)||t.ruleFollowed==='No'||t.ruleFollowed==='Partially')syncTradeMistakes(t)});}
+
+/* ===== MISTAKE ANALYSIS ===== */
+const MISTAKE_CATS=['FOMO entry','Revenge trading','Overtrading','Early exit','Late entry','Stop-loss violation','Position sizing error','Risk management failure','Trading without confirmation','Emotional trading','Ignoring the trading plan','Other'];
+function countBars(id,obj,emptyMsg){const e=Object.entries(obj).sort((a,b)=>b[1]-a[1]),max=Math.max(1,...e.map(x=>x[1]));$(id).innerHTML=e.length?e.map(([k,v])=>`<div class="barrow"><span title="${safe(k)}">${safe(k.length>15?k.slice(0,15)+'…':k)}</span><div class="bartrack"><div class="barfill" style="width:${v/max*100}%"></div></div><b>${v}</b></div>`).join(''):`<p class="muted">${emptyMsg}</p>`}
+function openMistake(m=null){
+ $('mistakeForm').reset();setval('mistakeId',m?.id||'');
+ const extra=[...new Set(state.mistakes.map(x=>x.category).filter(c=>c&&!MISTAKE_CATS.includes(c)))];
+ $('mCategory').innerHTML=[...MISTAKE_CATS,...extra].map(c=>`<option value="${safe(c)}">${safe(c)}</option>`).join('')+'<option value="__custom">Custom…</option>';
+ $('mTrade').innerHTML='<option value="">None</option>'+[...state.trades].sort((a,b)=>b.date.localeCompare(a.date)).map(t=>`<option value="${safe(t.id)}">${safe(t.date)} · ${safe(t.symbol)} · ${safe(t.direction)}</option>`).join('');
+ setval('mDate',m?.date||today());setval('mTrade',m?.tradeId||'');setval('mCategory',m?.category||MISTAKE_CATS[0]);
+ setval('mWhat',m?.what);setval('mSeverity',m?.severity||'');setval('mWhy',m?.why);setval('mAction',m?.action);setval('mLesson',m?.lesson);setval('mImpact',m&&m.impact!=null?m.impact:'');
+ $('mCustomWrap').classList.add('hidden');
+ $('mistakeModalTitle').textContent=m?'Edit mistake':'Log mistake';showModal('mistakeModal');
+}
+async function saveMistake(e){
+ e.preventDefault();
+ const cat=val('mCategory')==='__custom'?val('mCustom').trim():val('mCategory'),what=val('mWhat').trim();
+ if(!val('mDate')||!cat||!what){toast('Please fill the date, category and what went wrong.');return}
+ const id=val('mistakeId')||uid('MST'),imp=val('mImpact')===''?null:num(val('mImpact')),old=state.mistakes.find(x=>x.id===id),now=new Date().toISOString();
+ const m={id,date:val('mDate'),tradeId:val('mTrade'),category:cat,what,severity:val('mSeverity'),why:val('mWhy').trim(),action:val('mAction').trim(),lesson:val('mLesson').trim(),impact:imp,createdAt:old?.createdAt||now,updatedAt:now};
+ const snap=state.mistakes.slice(),tradeSnap=state.trades.slice();if(old?.source==='trade'){const t=state.trades.find(x=>x.id===old.tradeId);if(t){t.mistakeCategories=[cat];t.mistakeSeverity=val('mSeverity');t.mistakes=what;syncTradeMistakes(t);const derived=state.mistakes.find(x=>x.id===`TRD-MST-${t.id}-${encodeURIComponent(cat.toLowerCase().replace(/\s+/g,'-'))}`);if(derived){derived.why=val('mWhy').trim();derived.action=val('mAction').trim();derived.lesson=val('mLesson').trim()}}}else state.mistakes=old?snap.map(x=>x.id===id?m:x):[m,...snap];
+ if(!(await persist())){state.mistakes=snap;state.trades=tradeSnap;return}
+ closeModal('mistakeModal');renderMistakes();toast('Mistake saved.');
+}
+async function deleteMistake(id){if(!confirm('Delete this mistake entry?'))return;const snap=state.mistakes;state.mistakes=snap.filter(x=>x.id!==id);if(!(await persist())){state.mistakes=snap;return}renderMistakes();toast('Mistake deleted.')}
+function renderMistakes(){
+ const all=state.mistakes,cats=[...new Set(all.map(m=>m.category))].sort(),fc=$('mFilterCat'),old=fc.value;
+ fc.innerHTML='<option value="">All categories</option>'+cats.map(c=>`<option value="${safe(c)}">${safe(c)}</option>`).join('');fc.value=cats.includes(old)?old:'';
+ const q=val('mSearch').trim().toLowerCase(),cf=fc.value,from=val('mFrom'),to=val('mTo');
+ const list=all.filter(m=>(!q||[m.category,m.what,m.why,m.action,m.lesson].some(v=>String(v||'').toLowerCase().includes(q)))&&(!cf||m.category===cf)&&(!from||m.date>=from)&&(!to||m.date<=to)).sort((a,b)=>b.date.localeCompare(a.date)||String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
+ const counts={},months={},first={},last={};
+ all.forEach(m=>{counts[m.category]=(counts[m.category]||0)+1;const mo=(m.date||'').slice(0,7);if(mo)months[mo]=(months[mo]||0)+1;if(!first[m.category]||m.date<first[m.category])first[m.category]=m.date;if(!last[m.category]||m.date>last[m.category])last[m.category]=m.date});
+ const top=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0],since=new Date();since.setDate(since.getDate()-30);const min=ymd(since),imp=all.filter(m=>m.impact!=null&&Number.isFinite(Number(m.impact)));
+ const critical=[...all].filter(m=>severityOrder[m.severity]>=3).sort((a,b)=>severityOrder[b.severity]-severityOrder[a.severity]||b.date.localeCompare(a.date))[0];
+ $('mistakeReminders').checked=!!state.settings.mistakeReminderEnabled;$('mistakeThreshold').value=String(state.settings.mistakeReminderThreshold||3);$('mistakeReminderSeverity').value=state.settings.mistakeReminderSeverity||'Moderate';
+ $('mistakeStats').innerHTML=[statCard('Total mistakes',all.length,'Recorded entries'),statCard('Most frequent',top?safe(top[0]):'—',top?`${top[1]} time${top[1]===1?'':'s'}`:'No entries yet'),statCard('Most critical',critical?safe(critical.severity):'Unclassified',critical?safe(critical.category):'No classified severity'),statCard('Last 30 days',all.filter(m=>m.date>=min).length,'Entries by trade date')].join('');
+ const riskCats=Object.entries(counts).filter(([cat,n])=>n>=Number(state.settings.mistakeReminderThreshold||3)).sort((a,b)=>b[1]-a[1]);$('mistakeAlerts').innerHTML=critical?`<div class="card mistake-alert"><b>${safe(critical.severity)} severity recorded</b><div class="note">${safe(critical.category)} on ${safe(critical.date)}. Severity reflects your recorded classification, not the trade outcome.</div>${critical.tradeId?`<button data-review-trade="${safe(critical.tradeId)}">Review source trade</button>`:''}</div>`:'';if(state.settings.mistakeReminderEnabled&&riskCats.length)$('mistakeAlerts').innerHTML+=`<p class="note">Repeated categories at your threshold: ${riskCats.map(([c,n])=>`${safe(c)} (${n})`).join(', ')}.</p>`;
+ const lessons=[...all].filter(m=>m.lesson||m.action).sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+ $('mistakeLessons').innerHTML=lessons.length?lessons.map(m=>`<div style="padding:11px 0;border-bottom:1px solid var(--border)"><b>${safe(m.category)}</b> <span class="muted">${safe(m.date)}</span>${m.lesson?`<div class="note">Lesson: ${safe(m.lesson)}</div>`:''}${m.action?`<div class="note">Next time: ${safe(m.action)}</div>`:''}</div>`).join(''):'<p class="muted">No lessons recorded yet. Log a mistake to build your review list.</p>';
+ countBars('mistakeCats',counts,'No entries yet.');
+ const mo=Object.fromEntries(Object.entries(months).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,12));countBars('mistakeMonths',mo,'No entries yet.');
+ const rep=Object.entries(counts).filter(x=>x[1]>=2).sort((a,b)=>b[1]-a[1]);
+ $('mistakeRepeats').innerHTML=rep.length?rep.map(([k,v])=>`<div class="metricline"><span>${safe(k)}</span><b>${v}× · ${safe(first[k])} → ${safe(last[k])}</b></div>`).join(''):'<p class="muted">No category has been recorded more than once yet.</p>';
+ $('mistakeList').innerHTML=list.map(m=>{const t=state.trades.find(x=>x.id===m.tradeId),day=closedTrades().filter(x=>x.date===m.date),dn=day.reduce((a,x)=>a+num(x.net),0);return `<div class="card"><div class="card-head"><div><h3>${safe(m.category)}</h3><small class="muted">${safe(m.date)} · ${safe(m.severity||'Unclassified')}</small></div><div class="actions"><button data-edit-mistake="${safe(m.id)}">Edit</button><button class="danger" data-delete-mistake="${safe(m.id)}">Delete</button></div></div><p>${safe(m.what)}</p>${m.why?`<div class="note"><b>Why it happened:</b> ${safe(m.why)}</div>`:''}${m.action?`<div class="note"><b>Corrective action:</b> ${safe(m.action)}</div>`:''}${m.lesson?`<div class="note"><b>Lesson:</b> ${safe(m.lesson)}</div>`:''}${m.impact!=null&&Number.isFinite(Number(m.impact))?`<div class="metricline"><span>Impact you entered</span><b>${fmt(m.impact)}</b></div>`:''}${t?`<div class="metricline"><span>Linked trade</span><button data-review-trade="${safe(t.id)}">${safe(t.symbol)} · ${safe(t.direction)}${t.net!=null?' · '+signed(t.net):''} · Open</button></div>`:''}${day.length?`<div class="metricline"><span>Journal net P&L that day</span><b>${signed(dn)} (${day.length} closed)</b></div>`:''}</div>`}).join('');
+ $('mistakeEmpty').classList.toggle('hidden',list.length>0);
+ $('mistakeEmpty').innerHTML=all.length?'<strong>No entries match your filters</strong>Clear the filters to see everything.':'<strong>No mistakes recorded yet</strong>Use “Log mistake” to record one and build your review list.';
+}
+/* ===== STUDY TIMER (timestamp based) ===== */
+const fmtDur=ms=>{const t=Math.max(0,Math.ceil(ms/1000)),h=Math.floor(t/3600),m=Math.floor(t%3600/60),sec=t%60;return [h,m,sec].map(n=>String(n).padStart(2,'0')).join(':')};
+const fmtMin=ms=>{const m=Math.round(ms/60000);return m>=60?Math.floor(m/60)+' h '+(m%60)+' min':m+' min'};
+function studyElapsed(a,now=Date.now()){const start=Number(a.runStartedAt??a.startedAt??now);return Math.max(0,Number(a.accMs)||0)+(a.status==='running'?Math.max(0,now-start):0)}
+function studyFinish(status,elapsedMs){const a=state.study.active;if(!a)return;state.study.history.unshift({id:uid('STD'),topic:a.topic,plannedMs:a.plannedMs,elapsedMs:Math.max(0,Math.round(elapsedMs)),startedAt:a.startedAt,status,notes:a.notes||''});state.study.history=state.study.history.slice(0,200);state.study.active=null}
+function updateStudyClock(){const a=state.study.active;if(!a||!$('studyClock'))return;const el=studyElapsed(a),rem=a.plannedMs-el;$('studyClock').textContent=fmtDur(rem);$('studyBar').style.width=Math.min(100,el/a.plannedMs*100)+'%';$('studyRing').style.setProperty('--study-progress',Math.min(100,el/a.plannedMs*100)+'%');$('studyRun').classList.toggle('study-running',a.status==='running')}
+async function studyTick(){const a=state.study.active;if(!a)return;if(a.status==='running'&&studyElapsed(a)>=a.plannedMs){const topic=a.topic;studyFinish('completed',a.plannedMs);studyNote=`Session complete: ${topic}. Study the setup. Understand the risk. Execute with discipline.`;renderStudy();$('studyRun').classList.add('study-complete');await persist();if(document.visibilityState==='visible')toast(`Study session complete — ${topic}`);return}if($('study').classList.contains('active'))updateStudyClock()}
+function renderStudy(){
+ const a=state.study.active;
+ $('studySetup').classList.toggle('hidden',!!a);$('studyRun').classList.toggle('hidden',!a);$('studyMsg').textContent=studyNote;
+ if(a){$('studyRunTopic').textContent=a.topic;$('studyStatus').textContent=a.status==='running'?'Running · '+(a.startedAt?new Date(a.startedAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}):'')+' · time is recalculated when you return.':'Paused — remaining time is preserved.';$('studyQuote').textContent=a.status==='running'?'Focus on understanding, not predicting.':'Paused. Resume whenever you are ready.';$('studyPause').classList.toggle('hidden',a.status!=='running');$('studyResume').classList.toggle('hidden',a.status==='running');updateStudyClock()}
+ const h=state.study.history;$('studyTopics').innerHTML=[...new Set(h.map(x=>x.topic))].map(t=>`<option value="${safe(t)}">`).join('');
+ $('studyHistory').innerHTML=h.length?`<div class="table-wrap"><table><thead><tr><th>Topic</th><th>Started</th><th>Studied</th><th>Planned</th><th>Result</th><th>Takeaway</th><th></th></tr></thead><tbody>${h.map(x=>`<tr><td>${safe(x.topic)}</td><td>${safe(new Date(x.startedAt).toLocaleString(undefined,{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}))}</td><td>${fmtMin(x.elapsedMs)}</td><td>${fmtMin(x.plannedMs)}</td><td><span class="pill ${x.status==='completed'?'long':''}">${x.status==='completed'?'Completed':'Stopped'}</span></td><td>${safe(x.notes||'—')}</td><td><button data-del-study="${safe(x.id)}" aria-label="Remove session">×</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty"><strong>No sessions yet</strong>Sessions are saved here automatically when they end.</div>';
+}
+function dispName(){return(prof.name||state.username||'Trader').trim()}
+function paintAvatar(el,img){el.textContent='';if(img&&/^data:image\//.test(img)){const i=document.createElement('img');i.alt='';i.src=img;el.append(i)}else el.textContent=dispName().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase()||'T'}
+function initProfile(){document.documentElement.dataset.motion=prof.motion==='off'?'off':'auto';['avatarBox','pmAvatar','navAvatar'].forEach(i=>paintAvatar($(i),prof.image));$('pmName').textContent=dispName();setAdminUI(adminUnlocked)}
+function setAdminUI(on){const b=$('adminAccess');if(!b)return;const lbl=b.querySelector('.lbl');b.querySelector('svg').innerHTML=on?'<path d="M12 3l8 3v6c0 4.5-3.2 7.8-8 9-4.8-1.2-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/>':'<path d="M15 3h3a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3h-3"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/>';lbl.textContent=on?'Admin':'Admin login';const t=on?'Admin panel':'Admin login';b.dataset.tip=t;b.setAttribute('aria-label',t);const bd=$('pmBadge');if(bd){bd.textContent=on?'Admin · unlocked':'Local journal';bd.classList.toggle('on',on)}const so=$('pmSignout');if(so)so.disabled=!on;renderAccount()}
+function menu(open){const m=$('profileMenu');m.classList.toggle('open',open);$('profileBtn').setAttribute('aria-expanded',open)}
+function openProfileModal(){pendImg=undefined;setval('pfName',prof.name||state.username||'');setval('pfMotion',prof.motion);$('pfQuiet').checked=!!prof.quiet;paintAvatar($('pfAvatar'),prof.image);showModal('profileModal')}
+function bindEvents(){
+ // Profile & admin
+ $('profileBtn').onclick=()=>navigate('account');
+ document.addEventListener('click',e=>{if(!e.target.closest('.pwrap'))menu(false)});
+ $('profileMenu').onclick=e=>{const b=e.target.closest('[data-pm]');if(!b||b.disabled)return;menu(false);const a=b.dataset.pm;if(a==='profile'||a==='prefs')openProfileModal();else if(a==='account')navigate('settings');else if(a==='security'){navigate('settings');document.querySelector('[data-setting-tab="security"]')?.click()}else if(a==='signout')$('logoutBtn').click()};
+ $('pfPick').onclick=()=>$('pfImage').click();
+ $('pfRemove').onclick=()=>{pendImg='';paintAvatar($('pfAvatar'),'')};
+ $('pfImage').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f)return;const r=new FileReader();r.onload=()=>{pendImg=r.result;paintAvatar($('pfAvatar'),pendImg)};r.readAsDataURL(f)};
+ $('profileForm').onsubmit=e=>{e.preventDefault();prof.name=val('pfName').trim();prof.motion=val('pfMotion');prof.quiet=$('pfQuiet').checked;if(pendImg!==undefined)prof.image=pendImg;if(saveProf()){initProfile();closeModal('profileModal');toast('Profile saved.')}};
+ $('adminAccess').onclick=()=>{if(adminUnlocked){navigate('settings')}else{setval('adminLoginUser',state.username);setval('adminLoginPass','');$('adminLoginError').classList.add('hidden');showModal('adminLoginModal')}};
+ $('adminLoginForm').onsubmit=e=>{e.preventDefault();if(val('adminLoginUser')===state.username&&val('adminLoginPass')===state.password){adminUnlocked=true;sessionAt=Date.now();$('adminLoginError').classList.add('hidden');closeModal('adminLoginModal');setAdminUI(true);navigate('settings');toast('Admin panel unlocked.')}else $('adminLoginError').classList.remove('hidden')};
+ $('toggleAdminPassword').onclick=()=>{const p=$('adminLoginPass');p.type=p.type==='password'?'text':'password'};
+ $('logoutBtn').onclick=()=>{adminUnlocked=false;setAdminUI(false);navigate('dashboard');toast('Admin panel locked.')};
+ $('importFromDevice').onclick=()=>$('importFile').click();
+ $('menuBtn').onclick=()=>$('sidebar').classList.toggle('open');
+ $('scrim').onclick=()=>$('sidebar').classList.remove('open');
+ $('mobileNav').onclick=e=>{const b=e.target.closest('[data-mpage]');if(b)navigate(b.dataset.mpage)};
+ $('mainNav').onclick=e=>{const b=e.target.closest('[data-page]');if(!b)return;navigate(b.dataset.page)};
+ // Navigation & modals
+ document.body.addEventListener('click',e=>{
+ const open=e.target.closest('[data-open-trade]');if(open)openTrade();
+ const go=e.target.closest('[data-go]');if(go)navigate(go.dataset.go);
+ const edit=e.target.closest('[data-edit-trade]');if(edit){const t=state.trades.find(x=>x.id===edit.dataset.editTrade);if(t)openTrade(t)}
+ const dup=e.target.closest('[data-duplicate-trade]');if(dup){const t=state.trades.find(x=>x.id===dup.dataset.duplicateTrade);if(t)openTrade(t,true)}
+ const del=e.target.closest('[data-delete-trade]');if(del){if(confirm('Delete this trade?')){state.trades=state.trades.filter(t=>t.id!==del.dataset.deleteTrade);persist().then(renderAll)}}
+ const close=e.target.closest('[data-close]');if(close)closeModal(close.dataset.close);
+ const pm=e.target.closest('[data-pnl]');if(pm){pnlMode=pm.dataset.pnl;document.querySelectorAll('[data-pnl]').forEach(b=>b.classList.toggle('primary',b===pm));renderDashboard()}
+ // Strategy, plan, review & calendar actions
+ const editStr=e.target.closest('[data-edit-strategy]');if(editStr){const s=state.strategies.find(x=>x.id===editStr.dataset.editStrategy);if(s)openStrategy(s)}
+ const delStr=e.target.closest('[data-delete-strategy]');if(delStr&&confirm('Delete this strategy?')){state.strategies=state.strategies.filter(x=>x.id!==delStr.dataset.deleteStrategy);persist().then(renderAll)}
+ const editPlan=e.target.closest('[data-edit-plan]');if(editPlan){const p=state.plans.find(x=>x.id===editPlan.dataset.editPlan);if(p)openPlan(p)}
+ const delPlan=e.target.closest('[data-delete-plan]');if(delPlan&&confirm('Delete this plan?')){state.plans=state.plans.filter(x=>x.id!==delPlan.dataset.deletePlan);persist().then(renderAll)}
+ const convPlan=e.target.closest('[data-convert-plan]');if(convPlan){const p=state.plans.find(x=>x.id===convPlan.dataset.convertPlan);if(p){navigate('trades');openTrade({date:today(),symbol:p.symbol,direction:p.direction,entry:p.entry,stop:p.stop,target:p.target,strategy:p.strategy,notes:p.notes,status:'Planned'},true,'Planned')}}
+ const calDay=e.target.closest('[data-calendar-date]');if(calDay){selectedDate=calDay.dataset.calendarDate;renderCalendar()}
+ const linked=e.target.closest('[data-review-trade]');if(linked){const t=state.trades.find(x=>x.id===linked.dataset.reviewTrade);if(t)openTrade(t);return}
+ const openRev=e.target.closest('[data-open-review]');if(openRev){selectedDate=openRev.dataset.openReview;calendarCursor=new Date(selectedDate+'T00:00:00');navigate('calendar')}
+ // Task actions
+ const tog=e.target.closest('[data-toggle-occ]');
+ if(tog){
+ const occ=state.taskOccurrences.find(x=>x.id===tog.dataset.toggleOcc);
+ if(occ){occ.status=occ.status==='completed'?'pending':'completed';persist().then(renderTasks)}
+ }
+ const dayTog=e.target.closest('[data-day-occ-toggle]');
+ if(dayTog){
+ const occ=state.taskOccurrences.find(x=>x.id===dayTog.dataset.dayOccToggle);
+ if(occ){occ.status=occ.status==='completed'?'pending':'completed';persist().then(()=>{renderTasks();loadReviewForm();renderCalendar()})}
+ }
+ const skipOcc=e.target.closest('[data-skip-occ]');
+ if(skipOcc){
+ const occ=state.taskOccurrences.find(x=>x.id===skipOcc.dataset.skipOcc);
+ if(occ){occ.status='skipped';persist().then(renderTasks)}
+ }
+ const delOcc=e.target.closest('[data-delete-occ]');
+ if(delOcc){
+ const occ=state.taskOccurrences.find(x=>x.id===delOcc.dataset.deleteOcc);
+ if(occ)deleteOccurrences([occ.id]).then(()=>{renderTasks();loadReviewForm();renderCalendar()});
+ }
+ const editDef=e.target.closest('[data-edit-task-def]');
+ if(editDef){
+ const t=state.tasks.find(x=>x.id===editDef.dataset.editTaskDef);
+ if(t)openTaskModal(t);
+ }
+ const delDef=e.target.closest('[data-delete-task-def]');
+ if(delDef&&confirm('Delete this task series and all its occurrences?')){
+ state.tasks=state.tasks.filter(x=>x.id!==delDef.dataset.deleteTaskDef);
+ state.taskOccurrences=state.taskOccurrences.filter(x=>x.taskId!==delDef.dataset.deleteTaskDef);
+ state.taskTombstones=(state.taskTombstones||[]).filter(k=>!k.startsWith(delDef.dataset.deleteTaskDef+'_'));
+ persist().then(()=>{renderTasks();toast('Task series deleted.')});
+ }
+ });
+ $('addNewTask').onclick=()=>openTaskModal();
+ $('openTaskTemplates').onclick=loadTaskTemplates;
+ $('addDayTaskBtn').onclick=()=>{openTaskModal();setval('taskStartDate',selectedDate)};
+ $('taskForm').onsubmit=e=>{
+ e.preventDefault();
+ const id=val('taskId')||uid('TSK');
+ const t={
+ id,
+ title:val('taskTitle').trim(),
+ category:val('taskCategory'),
+ priority:val('taskPriority'),
+ startDate:val('taskStartDate'),
+ endDate:val('taskEndDate'),
+ recurrence:val('taskRecurrence'),
+ interval:num(val('taskInterval'))||1,
+ repetitions:num(val('taskRepetitions'))||10,
+ description:val('taskDescription').trim()
+ };
+ const idx=state.tasks.findIndex(x=>x.id===id);
+ if(idx>=0)state.tasks[idx]=t;else state.tasks.push(t);
+ ensureTaskOccurrences();
+ persist().then(()=>{closeModal('taskModal');renderTasks();renderCalendar();toast('Task saved successfully.')});
+ };
+ ['taskFilterDate','taskFilterCat','taskFilterStatus','taskFilterPriority'].forEach(id=>$(id).addEventListener('input',renderTasks));
+ $('quickAdd').onclick=()=>openTrade();
+ $('dashExport').onclick=()=>download('tradeledge-report-'+today()+'.json',JSON.stringify({generatedAt:new Date().toISOString(),metrics:metrics(filteredTrades()),trades:filteredTrades()},null,2));
+ $('exportCsv').onclick=exportCSV;
+ $('exportJson').onclick=()=>download('tradeledge-trades-'+today()+'.json',JSON.stringify(state.trades,null,2));
+ $('importBtn').onclick=$('restoreBackup').onclick=()=>$('importFile').click();
+ $('importFile').onchange=e=>importFile(e.target.files[0]);
+ $('fullBackup').onclick=exportBackup;
+ $('settingsPrint').onclick=$('printReport').onclick=()=>window.print();
+ ['dashRange','dashStrategy','dashDirection','dashSymbol'].forEach(id=>$(id).addEventListener('input',renderDashboard));
+ ['tradeSearch','tradeStrategy','tradeDirection','tradeResult','tradeStatus'].forEach(id=>$(id).addEventListener('input',renderTrades));
+ $('tradeRows').addEventListener('change',e=>{const cb=e.target.closest('[data-select-trade]');if(cb){cb.checked?selectedIds.add(cb.dataset.selectTrade):selectedIds.delete(cb.dataset.selectTrade)}});
+ $('selectAll').onchange=()=>{document.querySelectorAll('[data-select-trade]').forEach(cb=>{cb.checked=$('selectAll').checked;if(cb.checked)selectedIds.add(cb.dataset.selectTrade);else selectedIds.delete(cb.dataset.selectTrade)})};
+ $('deleteSelected').onclick=()=>{if(!selectedIds.size){toast('Select trades first.');return}if(confirm(`Delete ${selectedIds.size} selected trades?`)){state.trades=state.trades.filter(t=>!selectedIds.has(t.id));state.mistakes=state.mistakes.filter(m=>m.source!=='trade'||!selectedIds.has(m.tradeId));selectedIds.clear();persist().then(ok=>{if(ok){renderAll();toast('Selected trades deleted.')}})}};
+ document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>closeModal(b.dataset.close)));
+ document.querySelectorAll('.modal-backdrop').forEach(b=>b.addEventListener('click',e=>{if(e.target===b)closeModal(b.id)}));
+ $('tradeForm').addEventListener('submit',e=>saveTrade(e));
+ $('saveDraft').onclick=()=>saveTrade(null,'Planned');
+ ['entryPrice','exitPrice','quantity','multiplier','stopLoss','entryFees','exitFees','otherCosts','tradeDirectionInput','tradeStatusInput'].forEach(id=>$(id).addEventListener('input',updatePreview));
+ ['calcEquity','calcRiskPct','calcEntry','calcStop','calcMult','calcCosts'].forEach(id=>$(id).addEventListener('input',calcPosition));
+ $('editRiskSettings').onclick=()=>{navigate('settings');document.querySelector('[data-setting-tab="trading"]')?.click()};
+ $('addStrategy').onclick=()=>openStrategy();
+ $('strategyForm').onsubmit=e=>{e.preventDefault();const id=val('strategyId')||uid('STR'),s={id,name:val('strategyName').trim(),description:val('strategyDescription').trim(),rules:val('strategyRules').trim(),timeframe:val('strategyTimeframe').trim()};const i=state.strategies.findIndex(x=>x.id===id);if(i>=0)state.strategies[i]=s;else state.strategies.push(s);persist().then(()=>{closeModal('strategyModal');renderAll();toast('Strategy saved.')})};
+ $('addPlan').onclick=()=>openPlan();
+ $('planForm').onsubmit=e=>{e.preventDefault();const id=val('planId')||uid('PLN'),p={id,symbol:val('planSymbol').trim().toUpperCase(),direction:val('planDirection'),entry:num(val('planEntry')),stop:num(val('planStop')),target:num(val('planTarget')),status:val('planStatus'),strategy:val('planStrategy'),notes:val('planNotes').trim(),updatedAt:new Date().toISOString()};const i=state.plans.findIndex(x=>x.id===id);if(i>=0)state.plans[i]=p;else state.plans.unshift(p);persist().then(()=>{closeModal('planModal');renderAll();toast('Trade plan saved.')})};
+ $('prevMonth').onclick=()=>{calendarCursor.setMonth(calendarCursor.getMonth()-1);renderCalendar()};
+ $('nextMonth').onclick=()=>{calendarCursor.setMonth(calendarCursor.getMonth()+1);renderCalendar()};
+ $('thisMonth').onclick=()=>{calendarCursor=new Date();selectedDate=today();renderCalendar()};
+ $('saveDailyReview').onclick=()=>{
+ state.reviews[selectedDate]={goal:val('reviewGoal').trim(),plan:val('reviewPlan'),score:Math.min(10,Math.max(0,num(val('reviewScore')))),pre:val('reviewPre').trim(),notes:val('reviewNotes').trim(),updatedAt:new Date().toISOString()};
+ persist().then(()=>{renderReviews();toast('Daily review saved.')});
+ };
+ document.querySelectorAll('[data-setting-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-setting-tab]').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.setting-panel').forEach(p=>p.classList.toggle('hidden',p.id!=='setting-'+b.dataset.settingTab))});
+ // Appearance controls
+ const appMap={themeSelect:'theme',accentColor:'accent',positiveColor:'positive',negativeColor:'negative',bgColor:'bgColor',cardColor:'cardColor',sidebarColor:'sidebarColor',textColor:'textColor',mutedColor:'mutedColor',borderColor:'borderColor',densitySelect:'density',radiusSelect:'radius'};
+ Object.entries(appMap).forEach(([id,key])=>$(id).addEventListener('input',()=>{state.settings[key]=key==='radius'?num(val(id)):val(id);persist().then(()=>{applyTheme();renderDashboard();renderAnalytics()})}));
+ $('resetAppearance').onclick=()=>{const d=defaults.settings;['theme','bgColor','cardColor','sidebarColor','textColor','mutedColor','borderColor','accent','positive','negative','density','radius'].forEach(k=>{state.settings[k]=d[k]});persist().then(()=>{renderAll();toast('Appearance reset to defaults.')})};
+ // Admin Website Identity / Branding Save Handler
+ $('saveContent').onclick=()=>{
+ state.settings.siteName='TradeLedge';
+ state.settings.siteSubtitle=val('siteSubtitle').trim();
+ state.settings.browserTitle='TradeLedge — Trading Journal';
+ state.settings.brandLogoInitials=val('brandLogoInitials').trim().slice(0,3);
+ state.settings.welcome=val('welcomeMessage').trim();
+ state.settings.footer=val('footerNote').trim();
+ state.settings.showEquity=$('showEquity').checked;
+ state.settings.showRecent=$('showRecent').checked;
+ persist().then(()=>{applyTheme();renderDashboard();toast('Website identity and branding updated successfully.')});
+ };
+ $('logoPick').onclick=()=>$('logoFile').click();
+ $('logoFile').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f)return;resizeImage(f,192,d=>{state.settings.logoImage=d;persist().then(()=>{applyTheme();fillSettings();toast('Logo updated.')})})};
+ $('logoRemove').onclick=()=>{state.settings.logoImage='';persist().then(()=>{applyTheme();fillSettings();toast('Logo removed.')})};
+ $('acPick').onclick=()=>$('acImage').click();
+ $('acRemove').onclick=()=>{pendImg='';paintAvatar($('acAvatar'),'')};
+ $('acImage').onchange=e=>{const f=e.target.files[0];e.target.value='';if(!f)return;const r=new FileReader();r.onload=()=>{pendImg=r.result;paintAvatar($('acAvatar'),pendImg)};r.readAsDataURL(f)};
+ $('acSave').onclick=()=>{const n=val('acName').trim();if(!n){toast('Please enter a display name.');return}prof.name=n;prof.motion=val('acMotion');prof.quiet=$('acQuiet').checked;if(pendImg!==undefined&&pendImg!==null)prof.image=pendImg;pendImg=undefined;if(saveProf()){initProfile();toast('Profile saved.')}};
+ $('acOpenAdmin').onclick=()=>navigate('settings');
+ $('acSignout').onclick=()=>{if(!adminUnlocked){toast('Admin panel is already locked.');return}$('logoutBtn').click()};
+ // Tasks: view toggle, selection, calendar
+ const setTaskView=v=>{state.settings.taskView=v;persist().then(renderTasks)};
+ $('taskViewList').onclick=()=>setTaskView('list');$('taskViewCalendar').onclick=()=>setTaskView('calendar');
+ $('taskContainer').addEventListener('change',e=>{const cb=e.target.closest('[data-sel-occ]');if(cb){cb.checked?selOcc.add(cb.dataset.selOcc):selOcc.delete(cb.dataset.selOcc);renderTasks();return}if(e.target.id==='selAllOcc'){const ids=[...document.querySelectorAll('[data-sel-occ]')].map(x=>x.dataset.selOcc);e.target.checked?ids.forEach(i=>selOcc.add(i)):selOcc.clear();renderTasks()}});
+ $('taskContainer').addEventListener('keydown',e=>{const d=e.target.closest('[data-task-day]');if(d&&(e.key==='Enter'||e.key===' ')){e.preventDefault();taskSelDate=d.dataset.taskDay;renderTasks()}});
+ $('taskContainer').addEventListener('click',async e=>{
+ const d=e.target.closest('[data-task-day]');if(d){taskSelDate=d.dataset.taskDay;renderTasks();return}
+ const tc=e.target.closest('[data-tcal]');if(tc){const v=Number(tc.dataset.tcal);if(v===0){taskCalCursor=new Date();taskSelDate=today()}else taskCalCursor=new Date(taskCalCursor.getFullYear(),taskCalCursor.getMonth()+v,1);renderTasks();return}
+ if(e.target.closest('[data-tcal-add]')){openTaskModal();setval('taskStartDate',taskSelDate);return}
+ if(e.target.closest('[data-occ-clear]')){selOcc.clear();renderTasks();return}
+ if(e.target.closest('[data-occ-delete]')){const ids=[...selOcc],n=ids.length;if(!n){toast('Select tasks first.');return}if(!confirm(`Delete ${n} selected task${n===1?'':'s'}? This cannot be undone.`))return;const c=await deleteOccurrences(ids);if(c){selOcc.clear();toast(`Deleted ${c} task${c===1?'':'s'}.`)}renderTasks();renderCalendar()}
+ });
+ // Mistakes
+ $('addMistake').onclick=()=>openMistake();
+ ['mistakeReminders','mistakeThreshold','mistakeReminderSeverity'].forEach(id=>$(id).addEventListener('change',()=>{state.settings.mistakeReminderEnabled=$('mistakeReminders').checked;state.settings.mistakeReminderThreshold=Number($('mistakeThreshold').value)||3;state.settings.mistakeReminderSeverity=$('mistakeReminderSeverity').value;persist().then(ok=>{if(ok)renderMistakes()})}));
+ $('mistakeForm').onsubmit=saveMistake;
+ $('mCategory').addEventListener('change',()=>$('mCustomWrap').classList.toggle('hidden',val('mCategory')!=='__custom'));
+ ['mSearch','mFilterCat','mFrom','mTo'].forEach(id=>$(id).addEventListener('input',renderMistakes));
+ $('mFilterClear').onclick=()=>{['mSearch','mFilterCat','mFrom','mTo'].forEach(id=>setval(id,''));renderMistakes()};
+ $('mistakeList').addEventListener('click',e=>{const ed=e.target.closest('[data-edit-mistake]');if(ed){const m=state.mistakes.find(x=>x.id===ed.dataset.editMistake);if(m)openMistake(m);return}const dl=e.target.closest('[data-delete-mistake]');if(dl)deleteMistake(dl.dataset.deleteMistake)});
+ // Study
+ $('studyStart').onclick=async()=>{const ms=(Math.floor(num(val('studyHours')))*60+Math.floor(num(val('studyMinutes'))))*60000;if(ms<=0){toast('Please enter a duration greater than zero.');return}const now=Date.now();state.study.active={id:uid('STA'),topic:val('studyTopic').trim()||'General study',plannedMs:ms,startedAt:now,targetEndAt:now+ms,accMs:0,runStartedAt:now,status:'running'};studyNote='';renderStudy();await persist()};
+ $('studyPause').onclick=async()=>{const a=state.study.active;if(!a||a.status!=='running')return;a.accMs=studyElapsed(a);a.status='paused';a.runStartedAt=null;a.targetEndAt=null;renderStudy();await persist()};
+ $('studyResume').onclick=async()=>{const a=state.study.active;if(!a||a.status!=='paused')return;a.status='running';a.runStartedAt=Date.now();a.targetEndAt=a.runStartedAt+Math.max(0,a.plannedMs-a.accMs);renderStudy();await persist()};
+ $('studyReset').onclick=async()=>{const a=state.study.active;if(!a)return;a.accMs=0;a.status='paused';a.runStartedAt=null;a.targetEndAt=null;studyNote='';renderStudy();await persist()};
+ $('studyEnd').onclick=async()=>{const a=state.study.active;if(!a)return;const el=studyElapsed(a);if(el>=1000){const notes=prompt('Optional key takeaway from this session:','');a.notes=notes||'';studyFinish(el>=a.plannedMs?'completed':'stopped',el);studyNote=el>=a.plannedMs?'Session completed. Take a moment to record what you learned.':'Session ended early. Your study time has been saved.'}else{state.study.active=null;studyNote='Session discarded (no time elapsed).'}renderStudy();await persist()};
+ $('studyClear').onclick=async()=>{if(!state.study.history.length)return;if(!confirm('Clear all previous study sessions?'))return;const snap=state.study.history;state.study.history=[];if(!(await persist())){state.study.history=snap}renderStudy()};
+ $('studyHistory').addEventListener('click',async e=>{const b=e.target.closest('[data-del-study]');if(!b)return;const snap=state.study.history;state.study.history=snap.filter(x=>x.id!==b.dataset.delStudy);if(!(await persist()))state.study.history=snap;renderStudy()});
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')studyTick()});
+ window.addEventListener('pageshow',studyTick);window.addEventListener('focus',studyTick);
+ setInterval(studyTick,1000);
+ $('cancelContentBtn').onclick=()=>fillSettings();
+ $('saveTrading').onclick=saveTradingSettings;
+ $('changeCredentials').onclick=fillCredentials;
+ $('credentialsForm').onsubmit=saveCredentials;
+ $('refreshStorage').onclick=updateStorageEstimate;
+ $('resetData').onclick=resetData;
+ window.addEventListener('resize',()=>{if(!$('app').classList.contains('hidden')){const m=metrics(filteredTrades());drawLineChart($('equityChart'),m.curve.map(x=>x.equity),m.curve.map(x=>x.date),true);renderAnalytics()}})
+}
+(async function init(){
+ await loadState();
+ bindEvents();
+ $('todayLabel').textContent=new Date().toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+ applyTheme();
+ renderAll();
+ initProfile();
+ studyTick();
+ if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
+})();
+})();
+</script>
+</body>
+</html>
